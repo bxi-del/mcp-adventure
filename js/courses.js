@@ -659,5 +659,230 @@ await server.connect(new StdioServerTransport());` },
       { id: "adv-b-half", emoji: "🧠", name: "进阶过半", desc: "完成 7 关", cond: { lessons: 7 } },
       { id: "adv-b-grad", emoji: "🏆", name: "进阶毕业", desc: "完成进阶全部关卡", cond: { courseDone: true } }
     ]
+  },
+
+  /* =======================================================================
+   * 课程三：Prompt 高效入门（零基础）
+   * ======================================================================= */
+  {
+    id: "prompt",
+    emoji: "🪄",
+    title: "Prompt 高效入门",
+    subtitle: "把话说清楚，AI 更听话",
+    tagline: "零基础 · 万能公式 · 10 关",
+    gradient: "linear-gradient(135deg,#fbbf24 0%,#fcd34d 55%,#34d399 100%)",
+    mascotName: "明兰",
+    lessons: [
+      {
+        id: "prompt-0",
+        emoji: "👋",
+        title: "为什么学 Prompt？",
+        minutes: 2,
+        xp: 500,
+        intro: "一句话：会提问，AI 才高效。",
+        blocks: [
+          { type: "text", html: "欢迎来到第三门课！这次我们不学「技术」，学一门更通用的本事——<b>怎么把话说清楚，让 AI 少跑偏</b>。" },
+          { type: "callout", tone: "analogy", title: "🪄 Prompt 是什么？", html: "Prompt 就是你对 AI 说的那段话。<br/>同一个 AI，你问得糊里糊涂，它就答得乱七八糟；你问得清清楚楚，它就答得又快又准。<b>好 Prompt 就像会魔法。</b>" },
+          { type: "quiz", id: "prompt-0-q1", question: "一个好的 Prompt 能带来什么？", options: [
+            { text: "让 AI 答得更准、更省时间", correct: true },
+            { text: "让 AI 更耗电", correct: false },
+            { text: "让电脑变快", correct: false }
+          ], explain: "对！好 Prompt 的核心价值就是「更准、更快、少返工」。" },
+          { type: "final", html: "下一站，我教你一个<b>万能公式</b>，背下来就能用～" }
+        ]
+      },
+      {
+        id: "prompt-1",
+        emoji: "🧮",
+        title: "万能公式",
+        minutes: 4,
+        xp: 500,
+        intro: "五样东西拼成一个好 Prompt。",
+        blocks: [
+          { type: "text", html: "写 Prompt 有个<b>万能公式</b>，五个零件拼起来就行：" },
+          { type: "callout", tone: "idea", title: "🧮 万能公式", html: "<b>[角色]</b> 你是谁<br/><b>[任务]</b> 帮我干什么<br/><b>[具体要求]</b> 多长、什么风格、给谁看<br/><b>[参考/上下文]</b> 把材料贴给它<br/><b>[输出格式]</b> 要它输出成什么样" },
+          { type: "match", id: "prompt-1-m1", prompt: "把公式零件和它的作用连起来 👇", pairs: [
+            { left: "角色", right: "让它进入正确状态" },
+            { left: "任务", right: "说清要干嘛" },
+            { left: "具体要求", right: "长度/风格/语气" },
+            { left: "参考上下文", right: "贴材料，别让它猜" }
+          ], explain: "角色=进入状态，任务=干嘛，要求=长什么样，参考=给材料。" },
+          { type: "quiz", id: "prompt-1-q1", question: "下面哪个 Prompt 最完整？", options: [
+            { text: "「你是耐心的数学老师，给10岁孩子用100字讲清什么是分数，要口语化，附上一个小例子」", correct: true },
+            { text: "「讲一下分数」", correct: false },
+            { text: "「数学」", correct: false }
+          ], explain: "对！第一个有角色、任务、要求、长度和例子，信息最全。" },
+          { type: "final", html: "公式记住了。下一站拆开看第一个零件：<b>角色</b>。" }
+        ]
+      },
+      {
+        id: "prompt-2",
+        emoji: "🎭",
+        title: "角色：一句「你是一个…」",
+        minutes: 3,
+        xp: 500,
+        intro: "开头一句话，效果立竿见影。",
+        blocks: [
+          { type: "text", html: "最划算的一招：开头加一句 <b>「你是一位……的……」</b>，AI 会立刻切换到那个「身份」来回答。" },
+          { type: "callout", tone: "fun", title: "🎭 对比", html: "❌ 「帮我看看这段代码哪里错了」<br/>✅ 「<b>你是一位资深程序员</b>，帮我看看这段代码哪里错了，顺便告诉我怎么改」<br/><br/>同样的问题，第二个答案会更专业、更具体。" },
+          { type: "quiz", id: "prompt-2-q1", question: "下面哪个「角色设定」最可能让回答更专业？", options: [
+            { text: "「你是一位有 10 年经验的营养师」", correct: true },
+            { text: "「你是个随便的人」", correct: false },
+            { text: "什么都不加", correct: false }
+          ], explain: "对！具体、有专业感的角色设定，能让 AI 更「入戏」。" },
+          { type: "final", html: "角色这招最好用。下一站：<b>任务和具体要求</b>。" }
+        ]
+      },
+      {
+        id: "prompt-3",
+        emoji: "🎯",
+        title: "任务 & 具体要求",
+        minutes: 4,
+        xp: 500,
+        intro: "要什么、多长、什么风格、给谁看。",
+        blocks: [
+          { type: "text", html: "任务要<b>具体</b>，要求要<b>说全</b>。常见的要求有四类：<b>长度、风格、语气、受众</b>。" },
+          { type: "callout", tone: "tip", title: "🎯 四类要求", html: "<b>长度</b>：写 100 字 / 3 段<br/><b>风格</b>：正式 / 轻松 / 幽默<br/><b>语气</b>：温柔 / 专业 / 鼓励<br/><b>受众</b>：给 10 岁小孩 / 给老板 / 给初学者" },
+          { type: "quiz", id: "prompt-3-q1", question: "想让 AI 写一份「给老板看的周报」，哪个要求最该写清？", options: [
+            { text: "受众是老板 + 要正式、简洁", correct: true },
+            { text: "让 AI 随便写", correct: false },
+            { text: "只写「写个周报」", correct: false }
+          ], explain: "对！受众和风格决定语气，「给老板+正式简洁」是最关键的信息。" },
+          { type: "final", html: "要求说全了。下一站：<b>给上下文和示例</b>。" }
+        ]
+      },
+      {
+        id: "prompt-4",
+        emoji: "📎",
+        title: "给上下文 & 示例",
+        minutes: 4,
+        xp: 500,
+        intro: "贴材料、给例子，别让它瞎猜。",
+        blocks: [
+          { type: "text", html: "AI 不会读心。你能给它材料，就别只用嘴描述——<b>直接贴代码、贴原文、贴资料</b>。" },
+          { type: "callout", tone: "analogy", title: "📎 两种「给料」", html: "<b>① 贴上下文</b>：把报错代码、原文、简历直接粘进去。<br/><b>② 给示例（few-shot）</b>：告诉它「照着这个格式写」，并给 1~2 个例子，它就能稳定模仿。" },
+          { type: "quiz", id: "prompt-4-q1", question: "想让 AI 帮你改一段报错代码，最有效的做法是？", options: [
+            { text: "把报错代码和报错信息一起贴给它", correct: true },
+            { text: "口头描述「好像有个 bug」", correct: false },
+            { text: "只发「帮我修」", correct: false }
+          ], explain: "对！把原始代码和报错信息都贴过去，AI 才能对症下药。" },
+          { type: "final", html: "会「喂料」了。下一站：<b>输出格式</b>。" }
+        ]
+      },
+      {
+        id: "prompt-5",
+        emoji: "📐",
+        title: "输出格式",
+        minutes: 3,
+        xp: 500,
+        intro: "要它输出成什么样，直接说。",
+        blocks: [
+          { type: "text", html: "想让答案好用，就<b>规定它的形状</b>：表格、列表、分点、还是 JSON。" },
+          { type: "callout", tone: "tip", title: "📐 常用格式", html: "「用 3 个要点回答」<br/>「做成一个对比表格」<br/>「按 标题→摘要→正文 的结构写」<br/>「只输出 JSON 格式」" },
+          { type: "quiz", id: "prompt-5-q1", question: "想要一个「优缺点对比」，最好让 AI 输出成什么格式？", options: [
+            { text: "对比表格", correct: true },
+            { text: "一大段散文", correct: false },
+            { text: "一首诗", correct: false }
+          ], explain: "对！对比信息用表格最清晰，直接要求它「做成表格」即可。" },
+          { type: "final", html: "格式也会管了。下一站是个「大招」：<b>让它先想再说</b>。" }
+        ]
+      },
+      {
+        id: "prompt-6",
+        emoji: "🧠",
+        title: "先想再说",
+        minutes: 4,
+        xp: 500,
+        intro: "加一句「一步步来」，减少胡编。",
+        blocks: [
+          { type: "text", html: "遇到难题，AI 急着给答案容易错。这时加一句 <b>「先分析一下，再给出答案」</b> 或 <b>「一步一步来」</b>，它会先理清思路，答案准很多。" },
+          { type: "callout", tone: "analogy", title: "🧠 为什么有效？", html: "就像考试时先打草稿再写答案，比直接写对的多。<br/>让 AI「先思考」= 给它时间打草稿，减少一本正经地胡说。" },
+          { type: "quiz", id: "prompt-6-q1", question: "遇到一个复杂的推理题，哪句「追加要求」最能提高准确率？", options: [
+            { text: "「先分析，再一步步给出答案」", correct: true },
+            { text: "「越快越好，别废话」", correct: false },
+            { text: "什么都不加", correct: false }
+          ], explain: "对！「先分析、一步步来」能显著减少 AI 瞎编答案。" },
+          { type: "final", html: "会「逼它打草稿」了。下一站：<b>拆解复杂任务</b>。" }
+        ]
+      },
+      {
+        id: "prompt-7",
+        emoji: "🧩",
+        title: "拆解 & 迭代",
+        minutes: 4,
+        xp: 500,
+        intro: "大任务拆小步，不满意就让它改。",
+        blocks: [
+          { type: "text", html: "别指望一句话让 AI 交出一篇完美长文。<b>大任务拆成小步</b>，一步步来，质量高得多。" },
+          { type: "order", id: "prompt-7-o1", prompt: "把「写一篇长文章」的高效流程排个序 👇", items: [
+            "先让 AI 列出大纲",
+            "确认大纲后再按大纲写",
+            "写完后让它自查并修改",
+            "最后润色定稿"
+          ], explain: "对！大纲→写→改→定稿，拆开走，每一步都更可控。" },
+          { type: "quiz", id: "prompt-7-q1", question: "AI 写的第一版不满意，最高效的做法是？", options: [
+            { text: "在对话里让它「改这里、换那个」", correct: true },
+            { text: "删掉对话，重新从零问一遍", correct: false },
+            { text: "放弃", correct: false }
+          ], explain: "对！在已有回答上让它修改，比从头重问省时省力得多。" },
+          { type: "final", html: "会拆解、会迭代了。下一站：<b>避坑 + 实战</b>。" }
+        ]
+      },
+      {
+        id: "prompt-8",
+        emoji: "⚠️",
+        title: "常见坑 & 实战",
+        minutes: 4,
+        xp: 500,
+        intro: "三个最容易犯的错，一眼识破。",
+        blocks: [
+          { type: "callout", tone: "warn", title: "⚠️ 三个常见坑", html: "① <b>太模糊</b>：只说「帮我写个东西」，让 AI 瞎猜<br/>② <b>一次塞太多</b>：一个问题问 8 件事，答得杂<br/>③ <b>不验收</b>：写完不检查，错在哪都不知道" },
+          { type: "quiz", id: "prompt-8-q1", question: "下面哪个是「太模糊」的 Prompt？", options: [
+            { text: "「帮我弄一下这个」", correct: true },
+            { text: "「帮我把这段 200 字的简介改得口语化一点」", correct: false },
+            { text: "「用表格对比 A 和 B 的优缺点」", correct: false }
+          ], explain: "对！「弄一下这个」既没说清「这个」是什么，也没说要什么样，最模糊。" },
+          { type: "final", html: "坑都认清了。最后一站：<b>毕业闯关</b> 🎓" }
+        ]
+      },
+      {
+        id: "prompt-9",
+        emoji: "🎓",
+        title: "毕业闯关",
+        minutes: 4,
+        xp: 500,
+        intro: "四道题，通关领毕业证！",
+        blocks: [
+          { type: "text", html: "毕业闯关来啦，<b>4 道题</b>，都是这一路学过的～" },
+          { type: "quiz", id: "prompt-9-q1", question: "① 万能公式里，「角色」的作用是？", options: [
+            { text: "让它进入正确的状态", correct: true },
+            { text: "规定字数", correct: false },
+            { text: "给代码", correct: false }
+          ], explain: "对！角色让它「入戏」，回答更专业对味。" },
+          { type: "quiz", id: "prompt-9-q2", question: "② 想让 AI 稳定模仿某种格式，最有效的是？", options: [
+            { text: "给它一个示例（few-shot）", correct: true },
+            { text: "什么都不给", correct: false },
+            { text: "让它猜", correct: false }
+          ], explain: "对！给个例子，它照着模仿，格式最稳。" },
+          { type: "quiz", id: "prompt-9-q3", question: "③ 遇到复杂推理题，加哪句最能提高准确率？", options: [
+            { text: "「先分析，再一步步给出答案」", correct: true },
+            { text: "「随便写写」", correct: false },
+            { text: "「别思考，直接说」", correct: false }
+          ], explain: "对！让它「先想再说」，减少胡编。" },
+          { type: "quiz", id: "prompt-9-q4", question: "④ 一次想让它干很多事，最好的做法是？", options: [
+            { text: "拆成多个小任务，一步步来", correct: true },
+            { text: "一句话全塞给它", correct: false },
+            { text: "不告诉它要干嘛", correct: false }
+          ], explain: "对！大任务拆小步，质量更高、更可控。" },
+          { type: "final", html: "Prompt 闯关完成！你已经掌握了「高效提问」的本事 🎉<br/>点击下方按钮领取毕业证书吧～" }
+        ]
+      }
+    ],
+    badges: [
+      { id: "prompt-b-start", emoji: "👋", name: "提问新手", desc: "完成「为什么学 Prompt」", cond: { lesson: "prompt-0" } },
+      { id: "prompt-b-formula", emoji: "🧮", name: "公式达人", desc: "完成「万能公式」", cond: { lesson: "prompt-1" } },
+      { id: "prompt-b-half", emoji: "🎯", name: "提问高手", desc: "完成 5 关", cond: { lessons: 5 } },
+      { id: "prompt-b-grad", emoji: "🎓", name: "Prompt 毕业", desc: "完成 Prompt 全部关卡", cond: { courseDone: true } }
+    ]
   }
 ];
