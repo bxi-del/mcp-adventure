@@ -1,6 +1,6 @@
 /* =========================================================================
- * MCP 小冒险 · 应用逻辑
- * 渲染、互动、奖励（XP / 等级 / 徽章 / 连击 / 撒花）、localStorage 持久化
+ * 课程中心 · 应用逻辑
+ * 渲染、互动、奖励（XP / 300级 / 里程碑神秘大奖 / 徽章 / 连击 / 撒花）、持久化
  * ========================================================================= */
 
 (function () {
@@ -9,16 +9,49 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 
-  const STORE_KEY = 'mcp-adventure-v1';
+  const SITE_NAME = '课程中心';
+  const STORE_KEY = 'mcp-adventure-v2';
 
-  const LEVELS = [
-    { xp: 0,    name: '萌新' },
-    { xp: 100,  name: '接线学徒' },
-    { xp: 250,  name: '小小转接头' },
-    { xp: 450,  name: '接口达人' },
-    { xp: 700,  name: 'MCP 冒险家' },
-    { xp: 1000, name: 'AI 万能插头大师' }
-  ];
+  /* ---------------- 等级系统（300 级，约 20 节课 ≈ 100 级） ---------------- */
+  const LEVEL_CAP = 300;
+  const MILESTONES = [100, 200, 300];
+  const REWARDS = {
+    100: {
+      emoji: '🎁', title: '神秘大奖 · 壹',
+      desc: '解锁专属称号「入门毕业」，获得神秘徽章「🏵️ 百级达人」！<br/>这份奖励，是你坚持学完约 20 节课的见证。',
+      badges: ['🏵️ 百级达人', '🎖️ 称号：入门毕业']
+    },
+    200: {
+      emoji: '💎', title: '神秘大奖 · 贰',
+      desc: '解锁专属称号「进阶宗师」，获得神秘徽章「🌟 两百级宗师」！<br/>你已经远超大多数人，继续保持～',
+      badges: ['🌟 两百级宗师', '🎖️ 称号：进阶宗师']
+    },
+    300: {
+      emoji: '👑', title: '神秘大奖 · 叁（终极大奖）',
+      desc: '解锁最高称号「一代宗师」，获得终极徽章「👑 满级传奇」！<br/>你是当之无愧的 MCP 大师！',
+      badges: ['👑 满级传奇', '🎖️ 称号：一代宗师']
+    }
+  };
+  // 累计经验达到 level 级所需 XP
+  function levelThreshold(L) {
+    if (L <= 1) return 0;
+    if (L <= 100) return (L - 1) * 100;
+    if (L <= 200) return 10000 + (L - 100) * 200;
+    return 30000 + (L - 200) * 400;
+  }
+  function levelFor(xp) {
+    let lv = 1;
+    for (let L = 2; L <= LEVEL_CAP; L++) { if (xp >= levelThreshold(L)) lv = L; else break; }
+    return lv;
+  }
+  function levelTitle(lv) {
+    if (lv >= 300) return '一代宗师';
+    if (lv >= 200) return '进阶宗师';
+    if (lv >= 100) return '入门毕业';
+    if (lv >= 50) return '小有所成';
+    if (lv >= 20) return '勤奋学徒';
+    return '萌新学徒';
+  }
 
   /* ---------------- 状态 ---------------- */
   const defaultState = () => ({
@@ -30,6 +63,7 @@
     done: {},        // { lessonId: timestamp }
     blocksDone: {},  // { blockId: true }
     badges: {},      // { badgeId: timestamp }
+    rewards: { 100: false, 200: false, 300: false },
     flags: { perfect: false }
   });
 
@@ -58,11 +92,6 @@
     const p = (n) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
   }
-  function levelIndex(xp) {
-    let i = 0;
-    for (let k = 0; k < LEVELS.length; k++) if (xp >= LEVELS[k].xp) i = k;
-    return i;
-  }
   function shuffle(arr) {
     const a = arr.slice();
     for (let i = a.length - 1; i > 0; i--) {
@@ -78,7 +107,9 @@
   function esc(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
-
+  function mascotHTML() {
+    return `<img class="mascot-img" src="assets/minglan.svg" alt="明兰" />`;
+  }
   function courseById(id) { return COURSES.find((c) => c.id === id); }
   function lessonById(lid) {
     for (const c of COURSES) { const l = c.lessons.find((x) => x.id === lid); if (l) return { course: c, lesson: l }; }
@@ -95,19 +126,17 @@
   }
   function touchStreak() {
     const t = todayStr();
-    if (state.streak.last === t) return;           // 今天已经算过
+    if (state.streak.last === t) return;
     if (state.streak.last === yesterdayStr()) state.streak.count += 1;
     else state.streak.count = 1;
     state.streak.last = t;
     save();
   }
 
-  /* ---------------- 音效（Web Audio，无需音频文件） ---------------- */
+  /* ---------------- 音效 ---------------- */
   let audioCtx = null;
   function ensureAudio() {
-    if (!audioCtx) {
-      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { audioCtx = null; }
-    }
+    if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { audioCtx = null; } }
     return audioCtx;
   }
   function tone(freq, dur, type, vol) {
@@ -141,14 +170,14 @@
     if (!ctx2d) ctx2d = confettiCanvas.getContext('2d');
     const W = confettiCanvas.width = window.innerWidth;
     const H = confettiCanvas.height = window.innerHeight;
-    const colors = ['#ff8fb1', '#a78bfa', '#34d399', '#fbbf24', '#38bdf8', '#ff5c8a'];
+    const colors = ['#ff8fb1', '#a78bfa', '#34d399', '#fbbf24', '#38bdf8', '#ff5c8a', '#f76a8c'];
     const parts = [];
     for (let i = 0; i < (n || 120); i++) {
       parts.push({
-        x: W / 2 + (Math.random() - 0.5) * 160,
+        x: W / 2 + (Math.random() - 0.5) * 180,
         y: H * 0.35,
-        vx: (Math.random() - 0.5) * 12,
-        vy: -Math.random() * 11 - 3,
+        vx: (Math.random() - 0.5) * 13,
+        vy: -Math.random() * 12 - 3,
         g: 0.32,
         s: Math.random() * 8 + 5,
         r: Math.random() * Math.PI,
@@ -169,7 +198,7 @@
         else { ctx2d.beginPath(); ctx2d.arc(0, 0, p.s / 2, 0, Math.PI * 2); ctx2d.fill(); }
         ctx2d.restore();
       }
-      if (++frame < 120) requestAnimationFrame(tick);
+      if (++frame < 130) requestAnimationFrame(tick);
       else ctx2d.clearRect(0, 0, W, H);
     })();
   }
@@ -181,7 +210,7 @@
     t.textContent = msg;
     t.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
   }
   function flyXp(anchor, amount) {
     const el = document.createElement('div');
@@ -194,29 +223,43 @@
     setTimeout(() => el.remove(), 950);
   }
 
-  /* ---------------- 奖励：XP ---------------- */
-  function addXp(amount, anchor, reason) {
-    const before = levelIndex(state.xp);
+  /* ---------------- 奖励：XP / 等级 / 里程碑大奖 ---------------- */
+  function addXp(amount, anchor) {
+    const before = levelFor(state.xp);
     state.xp += amount;
-    const after = levelIndex(state.xp);
+    const after = levelFor(state.xp);
     save();
     updateHUD();
     if (anchor) flyXp(anchor, amount);
     if (after > before) {
-      const lv = LEVELS[after];
-      confettiBurst(140);
-      sfx.fanfare();
-      toast(`🎉 升级啦！Lv.${after + 1} ${lv.name}`);
+      sfx.pop();
+      toast(`🎉 升到 Lv.${after} ${levelTitle(after)}！`);
+      for (const m of MILESTONES) {
+        if (after >= m && before < m) { showReward(m); break; }
+      }
     }
   }
 
+  function showReward(m) {
+    if (state.rewards[m]) return;
+    state.rewards[m] = true;
+    save();
+    const r = REWARDS[m];
+    $('#rewardEmoji').textContent = r.emoji;
+    $('#rewardLevel').textContent = 'Lv.' + m;
+    $('#rewardTitle').textContent = r.title;
+    $('#rewardDesc').innerHTML = r.desc;
+    const box = $('#rewardBadges');
+    box.innerHTML = '';
+    r.badges.forEach((t) => { const s = document.createElement('span'); s.className = 'celeb-badge'; s.textContent = t; box.appendChild(s); });
+    $('#reward').classList.remove('hidden');
+    confettiBurst(260);
+    sfx.fanfare();
+  }
+
   /* ---------------- 奖励：徽章 ---------------- */
-  function countDone(course) {
-    return course.lessons.filter((l) => state.done[l.id]).length;
-  }
-  function courseDone(course) {
-    return course.lessons.every((l) => state.done[l.id]);
-  }
+  function countDone(course) { return course.lessons.filter((l) => state.done[l.id]).length; }
+  function courseDone(course) { return course.lessons.every((l) => state.done[l.id]); }
   function badgeEarned(course, b) {
     const c = b.cond || {};
     if (c.lesson) return !!state.done[c.lesson];
@@ -231,19 +274,15 @@
     for (const course of COURSES) {
       for (const b of course.badges) {
         if (state.badges[b.id]) continue;
-        if (badgeEarned(course, b)) {
-          state.badges[b.id] = todayStr();
-          newly.push(b);
-        }
+        if (badgeEarned(course, b)) { state.badges[b.id] = todayStr(); newly.push(b); }
       }
     }
     if (newly.length) {
       save();
       updateHUD();
-      if (silent) {
-        toast(`🏅 解锁 ${newly.length} 枚徽章！`);
-      } else {
-        celebrate({ emoji: newly.length > 1 ? '🏅' : newly[0].emoji, title: newly.length > 1 ? `一次解锁 ${newly.length} 枚徽章！` : `解锁新徽章！`, desc: '快去看看你的徽章墙吧～', badges: newly.map((b) => `${b.emoji} ${b.name}`) });
+      if (silent) toast(`🏅 解锁 ${newly.length} 枚徽章！`);
+      else {
+        celebrate({ emoji: newly.length > 1 ? '🏅' : newly[0].emoji, title: newly.length > 1 ? `一次解锁 ${newly.length} 枚徽章！` : '解锁新徽章！', desc: '快去看看你的徽章墙吧～', badges: newly.map((b) => `${b.emoji} ${b.name}`) });
         confettiBurst(160);
         sfx.fanfare();
       }
@@ -271,14 +310,17 @@
   $('#celebBtn').addEventListener('click', () => {
     $('#celebration').classList.add('hidden');
     if (celebQueue.length) setTimeout(showNextCelebration, 120);
-    else if (currentLessonId) { /* 回课程列表 */ renderCourse(currentCourseId); }
+    else if (currentLessonId) { renderCourse(currentCourseId); }
+  });
+  $('#rewardBtn').addEventListener('click', () => {
+    $('#reward').classList.add('hidden');
   });
 
   /* ---------------- 毕业证书 ---------------- */
   function showCertificate(course) {
     $('#certName').textContent = (state.name || '朋友').trim() || '朋友';
     $('#certCourse').textContent = `${course.emoji} ${course.title} · ${course.subtitle}`;
-    $('#certDate').textContent = todayStr() + ' · MCP 小冒险';
+    $('#certDate').textContent = todayStr() + ' · ' + SITE_NAME;
     $('#certificate').classList.remove('hidden');
     sfx.fanfare();
   }
@@ -289,39 +331,35 @@
 
   /* ---------------- HUD（顶部等级条） ---------------- */
   function updateHUD() {
-    const idx = levelIndex(state.xp);
-    const cur = LEVELS[idx];
-    const next = LEVELS[idx + 1];
-    $('#lvlN').textContent = idx + 1;
-    $('#lvlName').textContent = cur.name;
+    const lv = levelFor(state.xp);
+    const cur = levelThreshold(lv);
+    const next = lv < LEVEL_CAP ? levelThreshold(lv + 1) : cur;
+    const pct = next > cur ? Math.min(100, Math.round((state.xp - cur) / (next - cur) * 100)) : 100;
+
+    $('#lvlN').textContent = lv;
+    $('#lvlName').textContent = levelTitle(lv);
     $('#xpN').textContent = state.xp;
     $('#streakN').textContent = state.streak.count;
-    if (next) {
-      const pct = Math.min(100, Math.round((state.xp - cur.xp) / (next.xp - cur.xp) * 100));
-      $('#lvlFill').style.width = pct + '%';
-      $('#lvlNext').textContent = `再赚 ${next.xp - state.xp} XP 升级到「${next.name}」`;
-    } else {
-      $('#lvlFill').style.width = '100%';
-      $('#lvlNext').textContent = '满级啦，你就是大师！🏆';
-    }
-    $('#mascotBubble').textContent = currentCourse() ? (currentCourse().mascot || '🤖') : '🤖';
+    $('#lvlFill').style.width = pct + '%';
+
+    const nextMilestone = MILESTONES.find((m) => m > lv);
+    if (nextMilestone) $('#lvlNext').textContent = `🎁 距 ${nextMilestone} 级神秘大奖还差 ${nextMilestone - lv} 级`;
+    else $('#lvlNext').textContent = '👑 已达满级 300 级，收下终极大奖！';
+
+    $('#mascotBubble').innerHTML = mascotHTML();
     $('#soundToggle').textContent = state.sound ? '🔊' : '🔕';
   }
 
   /* ---------------- 导航 ---------------- */
   let currentCourseId = null;
   let currentLessonId = null;
-  let lessonWrong = false; // 本关本次会话是否有答错（用于「一次全对」判定）
-
-  function currentCourse() {
-    return courseById(currentCourseId) || COURSES[0];
-  }
+  let lessonWrong = false;
 
   function showView(id) {
     $$('.view').forEach((v) => v.classList.add('hidden'));
     const el = $('#view-' + id);
     if (el) el.classList.remove('hidden');
-    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+    window.scrollTo({ top: 0 });
   }
   function setActiveNav(id) {
     $$('.navbtn').forEach((b) => b.classList.toggle('active', b.dataset.nav === id));
@@ -329,49 +367,55 @@
   function navigate(id) {
     currentLessonId = null;
     if (id === 'home') renderHome();
-    else if (id === 'course') renderCourse(currentCourseId || COURSES[0].id);
     else if (id === 'badges') renderBadges();
   }
 
-  /* ---------------- 首页 ---------------- */
+  /* ---------------- 首页（课程中心） ---------------- */
   function renderHome() {
     setActiveNav('home');
     showView('home');
     const v = $('#view-home');
     const name = (state.name || '朋友').trim() || '朋友';
-    const c = currentCourse();
-    const done = countDone(c);
-    const total = c.lessons.length;
-    const pct = total ? Math.round(done / total * 100) : 0;
-    const nextLesson = c.lessons.find((l) => !state.done[l.id]) || null;
-    const badgesEarned = c.badges.filter((b) => state.badges[b.id]).length;
+
+    let totalLessons = 0, totalDone = 0, totalBadges = 0, totalBadgesEarned = 0;
+    COURSES.forEach((c) => {
+      totalLessons += c.lessons.length;
+      totalDone += countDone(c);
+      totalBadges += c.badges.length;
+      totalBadgesEarned += c.badges.filter((b) => state.badges[b.id]).length;
+    });
+
+    let nextLesson = null;
+    for (const c of COURSES) {
+      const l = c.lessons.find((x) => !state.done[x.id]);
+      if (l) { nextLesson = l; break; }
+    }
 
     v.innerHTML = `
       <div class="hero">
-        <div class="hero-mascot">${c.mascot}</div>
+        <div class="hero-mascot">${mascotHTML()}</div>
         <div>
-          <h1>嗨，${esc(name)}！<br/>准备好继续<b class="hl">冒险</b>了吗？</h1>
-          <p>我是布丁，今天也要一起开开心心学一点～</p>
+          <h1>嗨，${esc(name)}！<br/>今天想学点<b class="hl">什么</b>？</h1>
+          <p>我是明兰，陪你在课程中心，一点点变成 AI 小达人～</p>
         </div>
       </div>
 
       <div class="home-grid">
-        <div class="card stat-card"><span class="stat-num">${done}/${total}</span><span class="stat-label">🎯 已完成关卡</span></div>
-        <div class="card stat-card"><span class="stat-num">${badgesEarned}/${c.badges.length}</span><span class="stat-label">🏅 已解锁徽章</span></div>
+        <div class="card stat-card"><span class="stat-num">${totalDone}/${totalLessons}</span><span class="stat-label">🎯 已完成课程</span></div>
+        <div class="card stat-card"><span class="stat-num">${totalBadgesEarned}/${totalBadges}</span><span class="stat-label">🏅 已解锁徽章</span></div>
       </div>
 
       <button class="card continue-card" id="continueBtn" style="width:100%; text-align:left;">
-        <span class="big">${nextLesson ? '继续冒险 🚀' : '全部完成啦 🎉'}</span>
+        <span class="big">${nextLesson ? '继续学习 🚀' : '全部学完啦 🎉'}</span>
         <span class="sub">${nextLesson ? `下一站：${nextLesson.emoji} ${nextLesson.title}` : '去徽章墙看看你的成果吧！'}</span>
         <span class="btn-ghost-light">${nextLesson ? '出发' : '查看徽章'}</span>
       </button>
 
-      <h2 class="section-title">📚 我的课程</h2>
+      <h2 class="section-title">📚 全部课程</h2>
       <div id="homeCourses"></div>
     `;
 
-    const cont = $('#continueBtn');
-    cont.addEventListener('click', () => {
+    $('#continueBtn').addEventListener('click', () => {
       if (nextLesson) openLesson(nextLesson.id);
       else renderBadges();
     });
@@ -402,11 +446,12 @@
   /* ---------------- 课程（章节列表） ---------------- */
   function renderCourse(cid) {
     currentCourseId = cid;
-    setActiveNav('course');
+    setActiveNav('home');
     showView('course');
     const v = $('#view-course');
     const c = courseById(cid);
     const done = countDone(c);
+    const pct = c.lessons.length ? Math.round(done / c.lessons.length * 100) : 0;
 
     let html = `
       <div class="breadcrumb">
@@ -414,11 +459,11 @@
         <span>${c.emoji} ${c.title} · ${c.subtitle}</span>
       </div>
       <div class="card" style="text-align:center; margin-bottom:16px;">
-        <div style="font-size:52px">${c.mascot}</div>
+        <div class="course-mascot">${mascotHTML()}</div>
         <h2 style="font-size:20px">${c.emoji} ${c.title}</h2>
         <p style="color:var(--ink-soft); font-size:14px">${c.subtitle} · ${c.tagline}</p>
         <div class="course-progress-wrap" style="margin-top:10px">
-          <div class="course-progress" style="flex:1"><i style="width:${c.lessons.length ? Math.round(done / c.lessons.length * 100) : 0}%"></i></div>
+          <div class="course-progress" style="flex:1"><i style="width:${pct}%"></i></div>
           <span class="course-pct">${done}/${c.lessons.length} 关</span>
         </div>
       </div>
@@ -459,7 +504,7 @@
 
   function renderLesson(course, lesson) {
     showView('lesson');
-    setActiveNav('course');
+    setActiveNav('home');
     lessonWrong = false;
     const v = $('#view-lesson');
     const idx = course.lessons.indexOf(lesson);
@@ -484,16 +529,14 @@
     $$('[data-back]', v).forEach((b) => b.addEventListener('click', () => navigate(b.dataset.back)));
 
     const blocks = $('#blocks');
-    lesson.blocks.forEach((block, bi) => {
-      blocks.appendChild(renderBlock(block, bi, lesson));
-    });
+    lesson.blocks.forEach((block) => { blocks.appendChild(renderBlock(block)); });
 
     const actions = $('#lessonActions');
     const btn = document.createElement('button');
     btn.className = 'btn btn-big ' + (isDone ? 'btn-soft' : 'btn-primary');
-    btn.textContent = isDone ? '已完成 ✓ 回课程列表' : '完成本关，领取奖励 🎉';
+    btn.textContent = isDone ? '已完成 ✓ 回课程列表' : `完成本关，领取 +${lesson.xp} XP 🎉`;
     btn.addEventListener('click', () => {
-      if (isDone) { renderCourse(course.id); }
+      if (isDone) renderCourse(course.id);
       else completeLesson(course, lesson);
     });
     actions.appendChild(btn);
@@ -503,13 +546,12 @@
   function awardBlock(block, anchor) {
     if (!block.id || state.blocksDone[block.id]) return;
     state.blocksDone[block.id] = true;
-    const xp = { quiz: 10, match: 15, order: 15, fill: 10 }[block.type] || 10;
-    addXp(xp, anchor);
+    addXp(20, anchor);
     touchStreak();
     checkBadges();
   }
 
-  function renderBlock(block, bi, lesson) {
+  function renderBlock(block) {
     const wrap = document.createElement('div');
     wrap.className = 'block block-' + block.type;
 
@@ -526,18 +568,11 @@
     else if (block.type === 'code') {
       wrap.innerHTML = `<div class="codeblock"><pre><code>${esc(block.code)}</code></pre></div>`;
     }
-    else if (block.type === 'quiz') {
-      wrap.appendChild(buildQuiz(block));
-    }
-    else if (block.type === 'match') {
-      wrap.appendChild(buildMatch(block));
-    }
-    else if (block.type === 'order') {
-      wrap.appendChild(buildOrder(block));
-    }
-    else if (block.type === 'fill') {
-      wrap.appendChild(buildFill(block));
-    }
+    else if (block.type === 'quiz') { wrap.appendChild(buildQuiz(block)); }
+    else if (block.type === 'match') { wrap.appendChild(buildMatch(block)); }
+    else if (block.type === 'order') { wrap.appendChild(buildOrder(block)); }
+    else if (block.type === 'fill') { wrap.appendChild(buildFill(block)); }
+    else if (block.type === 'links') { wrap.appendChild(buildLinks(block)); }
     else if (block.type === 'final') {
       wrap.classList.add('block-final');
       wrap.innerHTML = `<p>${fillName(block.html)}</p>`;
@@ -550,7 +585,7 @@
     const box = document.createElement('div');
     box.className = 'interact';
     const done = isBlockDone(block.id);
-    box.innerHTML = `<div class="q-label">选择题 · +10 XP</div><div class="prompt">${fillName(block.question)}</div><div class="opts"></div>`;
+    box.innerHTML = `<div class="q-label">选择题 · +20 ✨</div><div class="prompt">${fillName(block.question)}</div><div class="opts"></div>`;
     const opts = $('.opts', box);
     const letters = ['A', 'B', 'C', 'D'];
 
@@ -565,10 +600,7 @@
           b.classList.add('correct');
           box.dataset.solved = '1';
           $$('.opt', box).forEach((x) => x.disabled = true);
-          if (!done) {
-            awardBlock(block, b);
-            sfx.correct();
-          }
+          if (!done) { awardBlock(block, b); sfx.correct(); }
           const ex = document.createElement('div');
           ex.className = 'explain';
           ex.innerHTML = '✅ ' + fillName(block.explain || '回答正确！');
@@ -592,12 +624,12 @@
     return box;
   }
 
-  /* ---- 连线匹配 ---- */
+  /* ---- 连连看 ---- */
   function buildMatch(block) {
     const box = document.createElement('div');
     box.className = 'interact';
     const done = isBlockDone(block.id);
-    box.innerHTML = `<div class="q-label">连连看 · +15 XP</div><div class="prompt">${fillName(block.prompt)}</div><div class="match-cols"></div>`;
+    box.innerHTML = `<div class="q-label">连连看 · +20 ✨</div><div class="prompt">${fillName(block.prompt)}</div><div class="match-cols"></div>`;
     const cols = $('.match-cols', box);
     const leftCol = document.createElement('div');
     const rightCol = document.createElement('div');
@@ -634,7 +666,6 @@
         if (done || b.classList.contains('done')) return;
         if (selectedLeft === null) { lessonWrong = true; b.classList.add('wrong'); setTimeout(() => b.classList.remove('wrong'), 500); sfx.wrong(); return; }
         if (block.pairs[selectedLeft].right === p.right) {
-          // 匹配成功
           const leftItem = $$('.match-item', leftCol)[selectedLeft];
           leftItem.classList.add('done'); leftItem.classList.remove('sel'); leftItem.disabled = true;
           b.classList.add('done'); b.disabled = true;
@@ -672,7 +703,7 @@
     const box = document.createElement('div');
     box.className = 'interact';
     const done = isBlockDone(block.id);
-    box.innerHTML = `<div class="q-label">排序题 · +15 XP</div><div class="prompt">${fillName(block.prompt)}</div><div class="order-items"></div><div class="order-progress">第 0 / ${block.items.length} 步</div>`;
+    box.innerHTML = `<div class="q-label">排序题 · +20 ✨</div><div class="prompt">${fillName(block.prompt)}</div><div class="order-items"></div><div class="order-progress">第 0 / ${block.items.length} 步</div>`;
     const items = $('.order-items', box);
     const prog = $('.order-progress', box);
     let nextIdx = 0;
@@ -724,7 +755,7 @@
     box.className = 'interact';
     const done = isBlockDone(block.id);
     const parts = (block.sentence || '___').split('___');
-    box.innerHTML = `<div class="q-label">填空题 · +10 XP</div><div class="prompt">${fillName(block.prompt)}</div><div class="fill-row"></div>`;
+    box.innerHTML = `<div class="q-label">填空题 · +20 ✨</div><div class="prompt">${fillName(block.prompt)}</div><div class="fill-row"></div>`;
     const row = $('.fill-row', box);
     const before = document.createElement('span');
     before.innerHTML = parts[0] ? fillName(parts[0]) : '';
@@ -744,30 +775,22 @@
 
     const answers = (block.answers || []).map((a) => a.toLowerCase().trim());
 
-    function solve(ok) {
-      input.classList.add(ok ? 'ok' : 'bad');
+    function solveOk() {
+      input.classList.add('ok');
       input.disabled = true; btn.disabled = true;
       box.dataset.solved = '1';
-      if (ok) {
-        awardBlock(block, input);
-        sfx.correct();
-        const ex = document.createElement('div');
-        ex.className = 'explain';
-        ex.innerHTML = '✅ ' + fillName(block.explain || '填对啦！');
-        box.appendChild(ex);
-      } else {
-        sfx.wrong();
-        const ex = document.createElement('div');
-        ex.className = 'explain';
-        ex.innerHTML = '💡 答案是 <b>' + esc(block.answers[0]) + '</b>，记一下它～';
-        box.appendChild(ex);
-      }
+      awardBlock(block, input);
+      sfx.correct();
+      const ex = document.createElement('div');
+      ex.className = 'explain';
+      ex.innerHTML = '✅ ' + fillName(block.explain || '填对啦！');
+      box.appendChild(ex);
     }
 
     btn.addEventListener('click', () => {
       if (input.disabled) return;
-      const v = input.value.toLowerCase().trim();
-      if (answers.includes(v)) solve(true);
+      const val = input.value.toLowerCase().trim();
+      if (answers.includes(val)) solveOk();
       else { lessonWrong = true; input.classList.add('bad'); sfx.wrong(); setTimeout(() => input.classList.remove('bad'), 500); }
     });
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') btn.click(); });
@@ -783,6 +806,24 @@
     return box;
   }
 
+  /* ---- 延伸资源（外部链接） ---- */
+  function buildLinks(block) {
+    const box = document.createElement('div');
+    box.className = 'interact links-block';
+    box.innerHTML = `<div class="links-title">${block.title || '🔗 延伸资源'}</div><div class="links-list"></div>`;
+    const list = $('.links-list', box);
+    (block.links || []).forEach((l) => {
+      const a = document.createElement('a');
+      a.className = 'link-item';
+      a.href = l.url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.innerHTML = `<span class="link-main"><span class="link-label">${esc(l.label)}</span><span class="link-desc">${esc(l.desc || '')}</span></span><span class="link-arrow">↗</span>`;
+      list.appendChild(a);
+    });
+    return box;
+  }
+
   /* ---- 完成课程 ---- */
   function completeLesson(course, lesson) {
     if (state.done[lesson.id]) return;
@@ -791,9 +832,7 @@
     // 「一次全对」：本关所有挑战都做完，且本次会话没有答错
     const interactBlocks = lesson.blocks.filter((b) => b.id);
     const allSolved = interactBlocks.length > 0 && interactBlocks.every((b) => state.blocksDone[b.id]);
-    if (allSolved && !lessonWrong) {
-      state.flags.perfect = true;
-    }
+    if (allSolved && !lessonWrong) state.flags.perfect = true;
 
     addXp(lesson.xp, null);
     touchStreak();
@@ -805,7 +844,6 @@
     const isFinal = !next;
 
     if (isFinal) {
-      // 通关全部课程：静默发放徽章（含「毕业啦」），弹出毕业证书
       checkBadges(true);
       confettiBurst(240);
       showCertificate(course);
@@ -831,13 +869,28 @@
     let html = `
       <div class="breadcrumb"><button class="backbtn" data-back="home">← 返回</button><span>🏅 我的徽章</span></div>
       <div class="card" style="text-align:center; margin-bottom:16px">
-        <div style="font-size:48px">🏅</div>
-        <h2 style="font-size:19px">徽章墙</h2>
-        <p style="color:var(--ink-soft); font-size:14px">每学一点，就解锁一枚。集齐它们超有成就感！</p>
-      </div>
-      <div class="badges-grid">`;
+        <div class="course-mascot" style="margin:0 auto">${mascotHTML()}</div>
+        <h2 style="font-size:19px">徽章墙 & 里程碑大奖</h2>
+        <p style="color:var(--ink-soft); font-size:14px">每学一点，就解锁一枚。100/200/300 级还有神秘大奖！</p>
+      </div>`;
 
+    // 里程碑大奖
+    html += `<h2 class="section-title">🏆 里程碑大奖</h2><div class="badges-grid">`;
+    MILESTONES.forEach((m) => {
+      const earned = !!state.rewards[m];
+      const r = REWARDS[m];
+      html += `
+        <div class="badge-card ${earned ? 'unlocked' : 'locked'}">
+          <span class="badge-emoji">${earned ? r.emoji : '🔒'}</span>
+          <div class="badge-name">Lv.${m} ${r.title}</div>
+          <div class="badge-desc">${earned ? '已领取' : `升到 ${m} 级解锁`}</div>
+        </div>`;
+    });
+    html += '</div>';
+
+    // 课程徽章
     COURSES.forEach((course) => {
+      html += `<h2 class="section-title">${course.emoji} ${course.title}</h2><div class="badges-grid">`;
       course.badges.forEach((b) => {
         const earned = !!state.badges[b.id];
         html += `
@@ -847,8 +900,9 @@
             <div class="badge-desc">${b.desc}</div>
           </div>`;
       });
+      html += '</div>';
     });
-    html += '</div>';
+
     v.innerHTML = html;
     $$('[data-back]', v).forEach((b) => b.addEventListener('click', () => navigate(b.dataset.back)));
   }
@@ -877,7 +931,6 @@
       }
     });
 
-    // 首次进入
     if (!state.name) {
       $('#onboarding').classList.remove('hidden');
     } else {
@@ -894,8 +947,7 @@
       renderHome();
       confettiBurst(140);
       sfx.fanfare();
-      toast('🎉 欢迎加入 MCP 小冒险！');
-      // 新手徽章会在首次完成课程时解锁；这里先给个欢迎
+      toast('🎉 欢迎来到课程中心！');
     });
 
     $$('.swatch').forEach((s) => s.addEventListener('click', () => {

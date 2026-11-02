@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#ff8fb1" />
-  <title>🔌 MCP 小冒险 · 给 AI 装个万能接口</title>
-  <meta name="description" content="零基础、不枯燥的 MCP 入门小课程。跟着小机器人布丁一起闯关，边玩边学会 MCP！" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔌</text></svg>" />
+  <title>🎓 课程中心 · AI 学习乐园</title>
+  <meta name="description" content="零基础、不枯燥的 AI 学习课程中心。跟着明兰一起闯关，边玩边学会 MCP！" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -16,13 +16,12 @@
   <!-- 顶部导航 -->
   <header class="topbar">
     <button class="logo" data-nav="home" aria-label="回到首页">
-      <span class="logo-plug">🔌</span>
-      <span class="logo-text">MCP 小冒险</span>
+      <span class="logo-plug">🎓</span>
+      <span class="logo-text">课程中心</span>
     </button>
 
     <nav class="topnav" aria-label="主导航">
-      <button class="navbtn" data-nav="home"><span class="nav-ico">🏠</span><span class="nav-txt">首页</span></button>
-      <button class="navbtn" data-nav="course"><span class="nav-ico">📚</span><span class="nav-txt">课程</span></button>
+      <button class="navbtn" data-nav="home"><span class="nav-ico">🏠</span><span class="nav-txt">课程中心</span></button>
       <button class="navbtn" data-nav="badges"><span class="nav-ico">🏅</span><span class="nav-txt">徽章</span></button>
     </nav>
 
@@ -40,7 +39,7 @@
 
   <!-- 等级条 -->
   <div class="levelstrip">
-    <div class="mascot-bubble" id="mascotBubble" title="布丁">🤖</div>
+    <div class="mascot-bubble" id="mascotBubble" title="明兰"><img class="mascot-img" src="assets/minglan.svg" alt="明兰" /></div>
     <div class="lvl-meta">
       <div class="lvl-titles">
         <span class="lvl-badge">Lv.<span id="lvlN">1</span></span>
@@ -70,9 +69,9 @@
   <!-- 首次进入弹窗 -->
   <div id="onboarding" class="modal-overlay hidden">
     <div class="modal card-pop">
-      <div class="onb-mascot">🤖</div>
-      <h1 class="onb-title">嗨，我是 <span class="hl">布丁</span>！</h1>
-      <p class="onb-sub">欢迎来到 <b>MCP 小冒险</b> 🎉<br />我们边玩边学，一点都不会无聊。</p>
+      <div class="onb-mascot"><img class="mascot-img" src="assets/minglan.svg" alt="明兰" /></div>
+      <h1 class="onb-title">嗨，我是 <span class="hl">明兰</span>！</h1>
+      <p class="onb-sub">欢迎来到 <b>课程中心</b> 🎉<br />我们边玩边学，一点都不会无聊。</p>
       <label class="field">
         <span class="field-label">你叫什么名字呀？</span>
         <input id="nameInput" type="text" maxlength="12" placeholder="输入你的名字 / 昵称" autocomplete="off" />
@@ -87,7 +86,7 @@
           <button class="swatch" data-color="sun" style="--c:#fbbf24" aria-label="阳光黄"></button>
         </div>
       </label>
-      <button id="onbStart" class="btn btn-big btn-primary">开始冒险！🚀</button>
+      <button id="onbStart" class="btn btn-big btn-primary">开始学习！🚀</button>
     </div>
   </div>
 
@@ -99,6 +98,19 @@
       <p class="celeb-desc" id="celebDesc"></p>
       <div class="celeb-badges" id="celebBadges"></div>
       <button class="btn btn-primary" id="celebBtn">好耶，继续！</button>
+    </div>
+  </div>
+
+  <!-- 神秘大奖弹窗 -->
+  <div id="reward" class="modal-overlay hidden">
+    <div class="modal card-pop reward-card">
+      <div class="reward-glow"></div>
+      <div class="reward-emoji" id="rewardEmoji">🎁</div>
+      <div class="reward-level" id="rewardLevel">Lv.100</div>
+      <h2 class="celeb-title" id="rewardTitle">神秘大奖 · 壹</h2>
+      <p class="celeb-desc" id="rewardDesc"></p>
+      <div class="celeb-badges" id="rewardBadges"></div>
+      <button class="btn btn-primary" id="rewardBtn">太惊喜了，收下！🎉</button>
     </div>
   </div>
 
