@@ -396,6 +396,43 @@ a { color: var(--primary); }
 .celeb-badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 12px 0; }
 .celeb-badge { background: var(--primary-soft); padding: 6px 12px; border-radius: 999px; font-weight: 800; font-size: 14px; animation: pop .4s ease; }
 
+/* ---------- 毕业证书 ---------- */
+.cert-card { max-width: 460px; }
+.cert-inner {
+  position: relative;
+  border: 3px double var(--accent);
+  border-radius: 18px;
+  padding: 26px 20px 22px;
+  background:
+    radial-gradient(360px 180px at 50% -10%, var(--primary-soft), transparent 70%),
+    linear-gradient(180deg, #fffdf8, #fff);
+  overflow: hidden;
+}
+.cert-inner::before,
+.cert-inner::after {
+  content: ""; position: absolute; width: 130px; height: 130px;
+  border-radius: 50%; opacity: .5; pointer-events: none;
+}
+.cert-inner::before { top: -70px; left: -70px; background: var(--primary-soft); }
+.cert-inner::after { bottom: -70px; right: -70px; background: var(--accent-soft); }
+.cert-badge { font-size: 44px; animation: floaty 3s ease-in-out infinite; }
+.cert-title { font-size: 28px; font-weight: 900; letter-spacing: .2em; color: var(--primary); }
+.cert-sub { font-size: 10px; letter-spacing: .28em; color: var(--ink-soft); font-weight: 700; margin-top: 2px; }
+.cert-rule { height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); margin: 14px auto 16px; width: 70%; }
+.cert-line { color: var(--ink-soft); font-size: 14px; }
+.cert-name { font-size: 30px; font-weight: 900; color: var(--ink); margin: 6px 0; letter-spacing: .08em; }
+.cert-course { font-size: 17px; font-weight: 800; color: var(--accent); margin: 6px 0; }
+.cert-date { margin-top: 12px; font-size: 13px; color: var(--ink-soft); font-weight: 600; }
+.cert-seal {
+  position: absolute; right: 18px; bottom: 14px;
+  width: 56px; height: 56px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 28px;
+  background: radial-gradient(circle at 35% 30%, var(--sun-soft), var(--sun));
+  box-shadow: inset 0 0 0 3px #fff, 0 4px 12px rgba(0,0,0,.12);
+  transform: rotate(-14deg);
+}
+.cert-tip { margin-top: 10px; font-size: 12px; color: var(--ink-soft); }
+
 /* ---------- 轻提示 ---------- */
 .toast {
   position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(120px);

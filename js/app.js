@@ -226,7 +226,7 @@
     if (c.perfect) return !!state.flags.perfect;
     return false;
   }
-  function checkBadges() {
+  function checkBadges(silent) {
     const newly = [];
     for (const course of COURSES) {
       for (const b of course.badges) {
@@ -240,9 +240,13 @@
     if (newly.length) {
       save();
       updateHUD();
-      celebrate({ emoji: newly.length > 1 ? '🏅' : newly[0].emoji, title: newly.length > 1 ? `一次解锁 ${newly.length} 枚徽章！` : `解锁新徽章！`, desc: '快去看看你的徽章墙吧～', badges: newly.map((b) => `${b.emoji} ${b.name}`) });
-      confettiBurst(160);
-      sfx.fanfare();
+      if (silent) {
+        toast(`🏅 解锁 ${newly.length} 枚徽章！`);
+      } else {
+        celebrate({ emoji: newly.length > 1 ? '🏅' : newly[0].emoji, title: newly.length > 1 ? `一次解锁 ${newly.length} 枚徽章！` : `解锁新徽章！`, desc: '快去看看你的徽章墙吧～', badges: newly.map((b) => `${b.emoji} ${b.name}`) });
+        confettiBurst(160);
+        sfx.fanfare();
+      }
     }
   }
 
@@ -268,6 +272,19 @@
     $('#celebration').classList.add('hidden');
     if (celebQueue.length) setTimeout(showNextCelebration, 120);
     else if (currentLessonId) { /* 回课程列表 */ renderCourse(currentCourseId); }
+  });
+
+  /* ---------------- 毕业证书 ---------------- */
+  function showCertificate(course) {
+    $('#certName').textContent = (state.name || '朋友').trim() || '朋友';
+    $('#certCourse').textContent = `${course.emoji} ${course.title} · ${course.subtitle}`;
+    $('#certDate').textContent = todayStr() + ' · MCP 小冒险';
+    $('#certificate').classList.remove('hidden');
+    sfx.fanfare();
+  }
+  $('#certBtn').addEventListener('click', () => {
+    $('#certificate').classList.add('hidden');
+    renderBadges();
   });
 
   /* ---------------- HUD（顶部等级条） ---------------- */
@@ -785,16 +802,24 @@
 
     const idx = course.lessons.indexOf(lesson);
     const next = course.lessons[idx + 1];
+    const isFinal = !next;
 
-    celebrate({
-      emoji: lesson.emoji,
-      title: `第 ${idx + 1} 关完成！`,
-      desc: `获得 <b>+${lesson.xp} XP</b>${next ? `<br/>下一关已解锁：${next.emoji} ${next.title}` : '<br/>恭喜你通关全部课程！🎓'}`,
-      badges: []
-    });
-    confettiBurst(180);
-    sfx.fanfare();
-    checkBadges();
+    if (isFinal) {
+      // 通关全部课程：静默发放徽章（含「毕业啦」），弹出毕业证书
+      checkBadges(true);
+      confettiBurst(240);
+      showCertificate(course);
+    } else {
+      celebrate({
+        emoji: lesson.emoji,
+        title: `第 ${idx + 1} 关完成！`,
+        desc: `获得 <b>+${lesson.xp} XP</b><br/>下一关已解锁：${next.emoji} ${next.title}`,
+        badges: []
+      });
+      confettiBurst(180);
+      sfx.fanfare();
+      checkBadges();
+    }
     renderLesson(course, lesson);
   }
 
