@@ -10,7 +10,10 @@
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 
   const SITE_NAME = '课程中心';
-  const STORE_KEY = 'mcp-adventure-v2';
+  // 稳定存储 key：以后永远不改这个名字，避免「升级代码=清空进度」。
+  const STORE_KEY = 'course-center-progress';
+  // 历史遗留的旧 key，加载时自动迁移到新 key（保留已有进度）。
+  const LEGACY_KEYS = ['mcp-adventure-v2', 'mcp-adventure-v1'];
 
   /* ---------------- 等级系统（300 级，约 20 节课 ≈ 100 级） ---------------- */
   const LEVEL_CAP = 300;
@@ -69,15 +72,49 @@
 
   let state = load();
 
+  // 迁移：把存档合并到「最新默认结构」上。
+  // 原则：新加的字段用默认值补齐，旧的 done/blocksDone/badges 等原样保留，
+  // 这样以后无论我怎么加功能、加字段，她的进度都不会丢。
+  function migrate(saved) {
+    if (!saved || typeof saved !== 'object') return defaultState();
+    const base = defaultState();
+    const out = Object.assign({}, base, saved);
+    out.streak = Object.assign({}, base.streak, saved.streak || {});
+    out.flags = Object.assign({}, base.flags, saved.flags || {});
+    out.rewards = Object.assign({}, base.rewards, saved.rewards || {});
+    out.done = saved.done || {};
+    out.blocksDone = saved.blocksDone || {};
+    out.badges = saved.badges || {};
+    out.name = typeof saved.name === 'string' ? saved.name : '';
+    out.color = typeof saved.color === 'string' ? saved.color : 'pink';
+    out.xp = typeof saved.xp === 'number' ? saved.xp : 0;
+    out.sound = !!saved.sound;
+    return out;
+  }
+
   function load() {
-    try {
-      const raw = localStorage.getItem(STORE_KEY);
-      if (raw) return Object.assign(defaultState(), JSON.parse(raw));
-    } catch (e) { /* ignore */ }
-    return defaultState();
+    let raw = localStorage.getItem(STORE_KEY);
+    // 若稳定 key 还没有数据，尝试从旧 key 迁移（并立刻写到稳定 key）
+    if (!raw) {
+      for (const k of LEGACY_KEYS) {
+        const legacy = localStorage.getItem(k);
+        if (legacy) {
+          raw = legacy;
+          try { localStorage.setItem(STORE_KEY, legacy); } catch (e) { /* ignore */ }
+          break;
+        }
+      }
+    }
+    if (!raw) return defaultState();
+    try { return migrate(JSON.parse(raw)); }
+    catch (e) { return defaultState(); }
   }
   function save() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+      // 迁移完成后清理旧 key，避免将来读到过期数据
+      LEGACY_KEYS.forEach((k) => localStorage.removeItem(k));
+    } catch (e) { /* ignore */ }
   }
 
   /* ---------------- 工具 ---------------- */
@@ -903,8 +940,56 @@
       html += '</div>';
     });
 
+    // 数据备份
+    html += `<h2 class="section-title">💾 数据备份</h2>
+      <div class="card backup-card">
+        <p class="backup-tip">进度存在<b>浏览器本地</b>。换设备、换浏览器或清理浏览器前，先在这里<b>导出备份</b>，之后可一键恢复。</p>
+        <div class="backup-actions">
+          <button class="btn btn-soft" id="exportBtn">💾 导出备份</button>
+          <button class="btn btn-soft" id="importBtn">📥 恢复备份</button>
+        </div>
+      </div>`;
+
     v.innerHTML = html;
     $$('[data-back]', v).forEach((b) => b.addEventListener('click', () => navigate(b.dataset.back)));
+    const exp = $('#exportBtn'); if (exp) exp.addEventListener('click', exportBackup);
+    const imp = $('#importBtn'); if (imp) imp.addEventListener('click', importBackup);
+  }
+
+  /* ---------------- 备份 / 恢复 ---------------- */
+  function exportBackup() {
+    try {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '课程中心-进度备份-' + todayStr() + '.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 800);
+      toast('💾 进度已导出，请保存好这个文件');
+    } catch (e) { toast('⚠️ 导出失败'); }
+  }
+  function importBackup() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = () => {
+      const f = input.files && input.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = () => {
+        try {
+          const data = JSON.parse(String(r.result));
+          state = migrate(data);
+          save();
+          updateHUD();
+          renderHome();
+          toast('✅ 进度已恢复，继续学习吧！');
+        } catch (e) { toast('⚠️ 恢复失败：文件格式不对'); }
+      };
+      r.readAsText(f);
+    };
+    input.click();
   }
 
   /* ---------------- 初始化 & 事件 ---------------- */

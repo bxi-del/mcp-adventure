@@ -507,6 +507,11 @@ a { color: var(--primary); }
   padding: 4px 16px; border-radius: 999px;
 }
 
+/* ---------- 数据备份 ---------- */
+.backup-card { text-align: left; }
+.backup-tip { color: var(--ink-soft); font-size: 13px; margin-bottom: 12px; }
+.backup-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
 @media (max-width: 560px) {
   .topbar { padding: 8px 10px; gap: 6px; }
   .logo-text { display: none; }
