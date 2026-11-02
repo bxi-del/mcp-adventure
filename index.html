@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#ff8fb1" />
+  <title>🔌 MCP 小冒险 · 给 AI 装个万能接口</title>
+  <meta name="description" content="零基础、不枯燥的 MCP 入门小课程。跟着小机器人布丁一起闯关，边玩边学会 MCP！" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔌</text></svg>" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- 撒花画布 -->
+  <canvas id="confetti" aria-hidden="true"></canvas>
+
+  <!-- 顶部导航 -->
+  <header class="topbar">
+    <button class="logo" data-nav="home" aria-label="回到首页">
+      <span class="logo-plug">🔌</span>
+      <span class="logo-text">MCP 小冒险</span>
+    </button>
+
+    <nav class="topnav" aria-label="主导航">
+      <button class="navbtn" data-nav="home"><span class="nav-ico">🏠</span><span class="nav-txt">首页</span></button>
+      <button class="navbtn" data-nav="course"><span class="nav-ico">📚</span><span class="nav-txt">课程</span></button>
+      <button class="navbtn" data-nav="badges"><span class="nav-ico">🏅</span><span class="nav-txt">徽章</span></button>
+    </nav>
+
+    <div class="userbox">
+      <div class="streak pill" title="连续学习天数">
+        <span class="pill-ico">🔥</span><span id="streakN">0</span>
+      </div>
+      <div class="xp pill" title="经验值">
+        <span class="pill-ico">✨</span><span id="xpN">0</span><span class="pill-unit">XP</span>
+      </div>
+      <button id="soundToggle" class="iconbtn" title="音效开关" aria-label="音效开关">🔕</button>
+      <button id="resetBtn" class="iconbtn" title="重新开始" aria-label="重置进度">↺</button>
+    </div>
+  </header>
+
+  <!-- 等级条 -->
+  <div class="levelstrip">
+    <div class="mascot-bubble" id="mascotBubble" title="布丁">🤖</div>
+    <div class="lvl-meta">
+      <div class="lvl-titles">
+        <span class="lvl-badge">Lv.<span id="lvlN">1</span></span>
+        <span class="lvl-name" id="lvlName">萌新</span>
+      </div>
+      <div class="lvl-bar"><div class="lvl-fill" id="lvlFill"></div></div>
+      <div class="lvl-next" id="lvlNext">再赚 100 XP 升级</div>
+    </div>
+    <div class="lvl-cheer" id="lvlCheer" aria-hidden="true"></div>
+  </div>
+
+  <!-- 视图：首页 -->
+  <main id="view-home" class="view"></main>
+
+  <!-- 视图：课程列表 -->
+  <main id="view-course" class="view hidden"></main>
+
+  <!-- 视图：课程内章节列表 -->
+  <main id="view-lessons" class="view hidden"></main>
+
+  <!-- 视图：学习页 -->
+  <main id="view-lesson" class="view hidden"></main>
+
+  <!-- 视图：徽章墙 -->
+  <main id="view-badges" class="view hidden"></main>
+
+  <!-- 首次进入弹窗 -->
+  <div id="onboarding" class="modal-overlay hidden">
+    <div class="modal card-pop">
+      <div class="onb-mascot">🤖</div>
+      <h1 class="onb-title">嗨，我是 <span class="hl">布丁</span>！</h1>
+      <p class="onb-sub">欢迎来到 <b>MCP 小冒险</b> 🎉<br />我们边玩边学，一点都不会无聊。</p>
+      <label class="field">
+        <span class="field-label">你叫什么名字呀？</span>
+        <input id="nameInput" type="text" maxlength="12" placeholder="输入你的名字 / 昵称" autocomplete="off" />
+      </label>
+      <label class="field">
+        <span class="field-label">选一个喜欢的颜色吧 🎨</span>
+        <div class="color-picker" id="colorPicker">
+          <button class="swatch active" data-color="pink" style="--c:#ff8fb1" aria-label="粉色"></button>
+          <button class="swatch" data-color="purple" style="--c:#a78bfa" aria-label="紫色"></button>
+          <button class="swatch" data-color="mint" style="--c:#34d399" aria-label="薄荷绿"></button>
+          <button class="swatch" data-color="sky" style="--c:#38bdf8" aria-label="天蓝"></button>
+          <button class="swatch" data-color="sun" style="--c:#fbbf24" aria-label="阳光黄"></button>
+        </div>
+      </label>
+      <button id="onbStart" class="btn btn-big btn-primary">开始冒险！🚀</button>
+    </div>
+  </div>
+
+  <!-- 通用弹窗（解锁/升级/毕业等庆祝） -->
+  <div id="celebration" class="modal-overlay hidden">
+    <div class="modal card-pop celeb-card">
+      <div class="celeb-emoji" id="celebEmoji">🎉</div>
+      <h2 class="celeb-title" id="celebTitle">太棒了！</h2>
+      <p class="celeb-desc" id="celebDesc"></p>
+      <div class="celeb-badges" id="celebBadges"></div>
+      <button class="btn btn-primary" id="celebBtn">好耶，继续！</button>
+    </div>
+  </div>
+
+  <!-- 轻提示 -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/courses.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
