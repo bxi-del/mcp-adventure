@@ -884,5 +884,248 @@ await server.connect(new StdioServerTransport());` },
       { id: "prompt-b-half", emoji: "🎯", name: "提问高手", desc: "完成 5 关", cond: { lessons: 5 } },
       { id: "prompt-b-grad", emoji: "🎓", name: "Prompt 毕业", desc: "完成 Prompt 全部关卡", cond: { courseDone: true } }
     ]
+  },
+
+  /* =======================================================================
+   * 课程四：AI Agent 入门（零基础）
+   * ======================================================================= */
+  {
+    id: "agent",
+    emoji: "🤖",
+    title: "AI Agent 入门",
+    subtitle: "从聊天 AI 到会自己干活的智能体",
+    tagline: "零基础 · 边玩边学 · 10 关",
+    gradient: "linear-gradient(135deg,#818cf8 0%,#a5b4fc 55%,#5eead4 100%)",
+    mascotName: "明兰",
+    lessons: [
+      {
+        id: "agent-0",
+        emoji: "🤖",
+        title: "什么是 AI Agent？",
+        minutes: 3,
+        xp: 500,
+        intro: "一种会「自己动手干活」的 AI。",
+        blocks: [
+          { type: "text", html: "你平时用的 AI，大多是<b>「你问一句、它答一句」</b>。<br/>还有一种 AI 不一样：你给它一个<b>目标</b>，它会自己<b>拆步骤、查资料、调工具</b>，最后把活儿干完、把结果交给你——这就是 <b>AI Agent（智能体）</b>。" },
+          { type: "callout", tone: "analogy", title: "🤖 一个比喻", html: "聊天 AI = 一个<b>只动嘴的顾问</b>，给你建议，但不帮你办。<br/>AI Agent = 一个<b>会动手的数字员工</b>，你说「帮我订张票」，它自己查、自己比价、自己下单、再回来汇报。" },
+          { type: "quiz", id: "agent-0-q1", question: "AI Agent 最突出的特点是？", options: [
+            { text: "能自主完成多步骤的任务", correct: true },
+            { text: "只能和你聊天", correct: false },
+            { text: "只会画画", correct: false }
+          ], explain: "对！Agent 的核心就是「自主完成多步任务」，不只是对话。" },
+          { type: "final", html: "认识 Agent 了。下一站：它和聊天 AI 到底<b>差在哪</b>。" }
+        ]
+      },
+      {
+        id: "agent-1",
+        emoji: "⚖️",
+        title: "Agent 和聊天 AI 的区别",
+        minutes: 4,
+        xp: 500,
+        intro: "一个被动、一个主动。",
+        blocks: [
+          { type: "text", html: "两者的本质区别就一个字：<b>主动</b>。" },
+          { type: "callout", tone: "analogy", title: "⚖️ 对比", html: "<b>聊天 AI</b>：被动。你问它才答，答完就等下一个问题，不会自己去干活。<br/><b>AI Agent</b>：主动。拿到目标后，自己规划、自己调用工具、自己根据结果调整，直到完成任务。" },
+          { type: "match", id: "agent-1-m1", prompt: "把特点和「谁」连起来 👇", pairs: [
+            { left: "你问一句它答一句", right: "聊天 AI" },
+            { left: "自己规划、自己执行", right: "AI Agent" },
+            { left: "能调用工具干活", right: "AI Agent" }
+          ], explain: "被动问答是聊天 AI；自己规划、能调工具的是 Agent。" },
+          { type: "quiz", id: "agent-1-q1", question: "下面哪个更像 Agent 在做事？", options: [
+            { text: "「帮我查机票、比价、下单，完成后告诉我」", correct: true },
+            { text: "「机票多少钱？」", correct: false },
+            { text: "「你好」", correct: false }
+          ], explain: "对！「查→比→下单→汇报」是一串自主任务，正是 Agent 的活。" },
+          { type: "final", html: "分清被动和主动了。下一站：Agent 靠哪<b>四个零件</b>干活。" }
+        ]
+      },
+      {
+        id: "agent-2",
+        emoji: "🧩",
+        title: "Agent 的四个零件",
+        minutes: 4,
+        xp: 500,
+        intro: "大脑、手脚、眼睛、记性。",
+        blocks: [
+          { type: "text", html: "一个能自己干活的 Agent，通常有<b>四个零件</b>，少了哪个都不灵。" },
+          { type: "callout", tone: "analogy", title: "🧩 四个零件", html: "<b>🧠 大脑</b>：大模型（LLM），负责思考、规划、做决定<br/><b>🖐️ 手脚</b>：工具（Tool），负责真正去干活（查、写、算、发）<br/><b>👁️ 眼睛</b>：感知（输入），负责接收信息和结果<br/><b>📝 记性</b>：记忆（Memory），负责记住上下文和用户偏好" },
+          { type: "match", id: "agent-2-m1", prompt: "把零件和它的作用连起来 👇", pairs: [
+            { left: "大脑（LLM）", right: "思考、规划、做决定" },
+            { left: "手脚（工具）", right: "真正去执行" },
+            { left: "眼睛（感知）", right: "接收信息" },
+            { left: "记性（记忆）", right: "记住上下文和偏好" }
+          ], explain: "大脑=想，手脚=做，眼睛=看，记性=记。四个零件组成一个 Agent。" },
+          { type: "quiz", id: "agent-2-q1", question: "Agent 的「大脑」是哪个零件？", options: [
+            { text: "大模型（LLM）", correct: true },
+            { text: "工具", correct: false },
+            { text: "内存条", correct: false }
+          ], explain: "对！大脑就是大模型，负责思考和决策。" },
+          { type: "final", html: "四个零件认全了。下一站先看<b>大脑</b>怎么想。" }
+        ]
+      },
+      {
+        id: "agent-3",
+        emoji: "🧠",
+        title: "大脑：LLM + 推理",
+        minutes: 3,
+        xp: 500,
+        intro: "Agent 靠大模型「想」下一步。",
+        blocks: [
+          { type: "text", html: "Agent 的「大脑」就是<b>大模型（LLM）</b>。它负责：理解目标 → 拆解步骤 → 决定下一步该干什么 → 判断任务完没完成。" },
+          { type: "callout", tone: "tip", title: "🧠 大脑的循环", html: "Agent 干活其实是<b>一个循环</b>：<br/>看现状 → 想一想 → 干一步 → 看结果 → 再想一想 → 再干一步…… 直到目标达成。" },
+          { type: "quiz", id: "agent-3-q1", question: "Agent 决定「下一步做什么」，靠的是？", options: [
+            { text: "大模型（LLM）的推理", correct: true },
+            { text: "骰子随机", correct: false },
+            { text: "猜拳", correct: false }
+          ], explain: "对！是 LLM 在根据目标推理、决定下一步。" },
+          { type: "final", html: "大脑明白了。下一站：<b>手脚</b>——工具调用，这里会碰到老朋友 MCP！" }
+        ]
+      },
+      {
+        id: "agent-4",
+        emoji: "🖐️",
+        title: "手脚：工具调用（Tool Use）",
+        minutes: 5,
+        xp: 500,
+        intro: "光想不会做可不行，得会调工具。",
+        blocks: [
+          { type: "text", html: "Agent 光会「想」没用，还得会「做」。它「做」的方式叫 <b>工具调用（Tool Use / Function Calling）</b>。" },
+          { type: "callout", tone: "analogy", title: "🖐️ 工具调用流程", html: "① 模型决定「我要用这个工具」<br/>② 输出「工具名 + 参数」<br/>③ 外面的程序真正去执行工具<br/>④ 把结果喂回模型，模型再决定下一步" },
+          { type: "callout", tone: "idea", title: "🔌 还记得 MCP 吗？", html: "这里正好用上 MCP！<b>MCP 就是给 Agent 接工具的「标准插座」</b>。<br/>Agent（有大脑）通过 MCP（标准接口）去调用各种工具（手脚），分工清清楚楚。" },
+          { type: "quiz", id: "agent-4-q1", question: "模型决定调用工具后，真正「执行」工具的是谁？", options: [
+            { text: "外面的程序（宿主）", correct: true },
+            { text: "模型自己动手", correct: false },
+            { text: "没人执行", correct: false }
+          ], explain: "对！模型只「点名」要哪个工具，真正执行的是宿主程序。" },
+          { type: "quiz", id: "agent-4-q2", question: "MCP 和 Agent 是什么关系？", options: [
+            { text: "MCP 是 Agent 接工具的标准化方式", correct: true },
+            { text: "MCP 是 Agent 的对手", correct: false },
+            { text: "完全没关系", correct: false }
+          ], explain: "对！Agent 需要工具，MCP 负责标准地「接」工具，两者配合。" },
+          { type: "final", html: "手脚会动了。下一站：<b>记性</b>——短期 vs 长期。" }
+        ]
+      },
+      {
+        id: "agent-5",
+        emoji: "📝",
+        title: "记忆：短期 vs 长期",
+        minutes: 4,
+        xp: 500,
+        intro: "记得住对话，也记得住你。",
+        blocks: [
+          { type: "text", html: "Agent 的「记性」分两种，用途不同。" },
+          { type: "callout", tone: "analogy", title: "📝 两种记忆", html: "<b>短期记忆</b>：就是当前对话的「上下文」，记得住这一轮聊了啥，聊完就忘。<br/><b>长期记忆</b>：存在外面的「记忆库」（常用向量数据库），跨对话也记得，比如「用户喜欢用表格」。<br/><br/>长期记忆常和 <b>RAG（检索增强生成）</b> 配合：用到时去记忆库里「查」出来。" },
+          { type: "quiz", id: "agent-5-q1", question: "想让 Agent 记住「你偏爱简洁回答」，并且下次对话还记得，用哪种记忆？", options: [
+            { text: "长期记忆", correct: true },
+            { text: "短期记忆", correct: false },
+            { text: "不用记", correct: false }
+          ], explain: "对！跨对话、长期保留的信息，得存进长期记忆。" },
+          { type: "final", html: "记性也有了。下一站：Agent 的<b>思考套路</b>。" }
+        ]
+      },
+      {
+        id: "agent-6",
+        emoji: "💭",
+        title: "思考方式：ReAct / 规划 / 反思",
+        minutes: 5,
+        xp: 500,
+        intro: "Agent 有三种「想问题」的套路。",
+        blocks: [
+          { type: "text", html: "同样是「想」，Agent 也有不同套路，常见三种👇" },
+          { type: "callout", tone: "analogy", title: "💭 三种套路", html: "<b>① ReAct</b>：<b>边想边做</b>。想一步、做一步、看结果、再想。（最经典）<br/><b>② 规划（Plan）</b>：<b>先规划再执行</b>。先列完整计划，再照着做。<br/><b>③ 反思（Reflection）</b>：<b>做完回头检</b>。干完自己挑毛病，再改一遍。" },
+          { type: "match", id: "agent-6-m1", prompt: "把套路和它的特点连起来 👇", pairs: [
+            { left: "ReAct", right: "边想边做，逐步推进" },
+            { left: "规划 Plan", right: "先列计划再执行" },
+            { left: "反思 Reflection", right: "做完自己检查改进" }
+          ], explain: "ReAct=边想边做，Plan=先规划，Reflection=事后反思。" },
+          { type: "quiz", id: "agent-6-q1", question: "「先列完整计划，再一步步执行」是哪种套路？", options: [
+            { text: "规划（Plan）", correct: true },
+            { text: "ReAct", correct: false },
+            { text: "反思（Reflection）", correct: false }
+          ], explain: "对！先规划再执行，就是 Plan 套路。" },
+          { type: "final", html: "会「想」了。下一站：<b>多个 Agent 一起干</b>。" }
+        ]
+      },
+      {
+        id: "agent-7",
+        emoji: "👥",
+        title: "多 Agent 协作",
+        minutes: 4,
+        xp: 500,
+        intro: "一个人干不完，就上一个小团队。",
+        blocks: [
+          { type: "text", html: "复杂任务，一个 Agent 可能顾不过来，于是就有了<b>多 Agent 协作</b>：几个 Agent 各管一摊，像一个小团队。" },
+          { type: "callout", tone: "fun", title: "👥 一个小团队", html: "比如做一个项目，可以让：<br/><b>规划者 Agent</b> 拆任务 → <b>程序员 Agent</b> 写代码 → <b>审查员 Agent</b> 挑毛病 → 循环到通过。" },
+          { type: "quiz", id: "agent-7-q1", question: "多 Agent 协作最大的好处是？", options: [
+            { text: "各司其职，复杂任务质量更高", correct: true },
+            { text: "更省电", correct: false },
+            { text: "更慢", correct: false }
+          ], explain: "对！分工让每个 Agent 专注一件事，整体质量更高。" },
+          { type: "final", html: "会组队了。下一站：<b>Agent 到底能干嘛</b>。" }
+        ]
+      },
+      {
+        id: "agent-8",
+        emoji: "🌍",
+        title: "真实应用场景",
+        minutes: 4,
+        xp: 500,
+        intro: "Agent 已经在这些地方上班了。",
+        blocks: [
+          { type: "text", html: "Agent 不是概念，已经在很多地方「上班」了。" },
+          { type: "callout", tone: "fun", title: "🌍 常见场景", html: "💬 <b>智能客服</b>：自己查订单、退换货、转人工<br/>💻 <b>编程助手</b>：自己读代码、改 bug、跑测试<br/>📊 <b>数据分析</b>：自己取数、算指标、出报告<br/>📅 <b>办公自动化</b>：自动回邮件、排日程、做周报" },
+          { type: "quiz", id: "agent-8-q1", question: "下面哪个是 Agent 的典型应用？", options: [
+            { text: "自动读代码、改 bug、跑测试的编程助手", correct: true },
+            { text: "一个只会显示时间的时钟", correct: false },
+            { text: "一张静态图片", correct: false }
+          ], explain: "对！能自主读代码、改 bug、跑测试，是典型的多步 Agent 任务。" },
+          { type: "final", html: "知道它能干嘛了。最后一站：<b>怎么自己搭一个</b> + 毕业闯关。" }
+        ]
+      },
+      {
+        id: "agent-9",
+        emoji: "🎓",
+        title: "动手搭 Agent + 毕业闯关",
+        minutes: 5,
+        xp: 500,
+        intro: "常用框架 + 毕业测验。",
+        blocks: [
+          { type: "text", html: "想自己搭 Agent，不用从零写，有现成的<b>框架</b>。" },
+          { type: "callout", tone: "tip", title: "🛠️ 常用框架", html: "<b>LangGraph</b>：把 Agent 流程画成「图」，很灵活<br/><b>AutoGen</b>：微软出品，擅长多 Agent 协作<br/><b>CrewAI</b>：主打「AI 团队」概念，上手快" },
+          { type: "links", title: "🔗 框架官网", links: [
+            { label: "LangGraph", url: "https://github.com/langchain-ai/langgraph", desc: "图式 Agent 编排框架" },
+            { label: "AutoGen（微软）", url: "https://github.com/microsoft/autogen", desc: "多 Agent 协作框架" },
+            { label: "CrewAI", url: "https://github.com/crewAIInc/crewAI", desc: "AI 团队协作框架" }
+          ] },
+          { type: "quiz", id: "agent-9-q1", question: "① Agent 的「大脑」是？", options: [
+            { text: "大模型（LLM）", correct: true },
+            { text: "工具", correct: false },
+            { text: "数据库", correct: false }
+          ], explain: "对！大脑是大模型。" },
+          { type: "quiz", id: "agent-9-q2", question: "② 模型「点名」要调工具，真正执行的是？", options: [
+            { text: "外面的宿主程序", correct: true },
+            { text: "模型自己", correct: false },
+            { text: "没人", correct: false }
+          ], explain: "对！模型只点名，宿主去执行。" },
+          { type: "quiz", id: "agent-9-q3", question: "③ MCP 和 Agent 的关系是？", options: [
+            { text: "MCP 是 Agent 接工具的标准化方式", correct: true },
+            { text: "MCP 比 Agent 更高级，可以替代", correct: false },
+            { text: "毫无关系", correct: false }
+          ], explain: "对！MCP 给 Agent 装「手」，两者配合。" },
+          { type: "quiz", id: "agent-9-q4", question: "④ 「边想边做、逐步推进」是哪种思考套路？", options: [
+            { text: "ReAct", correct: true },
+            { text: "Plan", correct: false },
+            { text: "Reflection", correct: false }
+          ], explain: "对！ReAct 就是边想边做。" },
+          { type: "final", html: "AI Agent 闯关完成！你已经从「用 AI」进阶到「懂智能体」啦 🎉<br/>点击下方按钮领取毕业证书吧～" }
+        ]
+      }
+    ],
+    badges: [
+      { id: "agent-b-start", emoji: "🤖", name: "初识 Agent", desc: "完成「什么是 AI Agent」", cond: { lesson: "agent-0" } },
+      { id: "agent-b-parts", emoji: "🧩", name: "零件全懂", desc: "完成「四个零件」", cond: { lesson: "agent-2" } },
+      { id: "agent-b-tool", emoji: "🔌", name: "手脚并用", desc: "完成「工具调用」", cond: { lesson: "agent-4" } },
+      { id: "agent-b-grad", emoji: "🎓", name: "Agent 毕业", desc: "完成 Agent 全部关卡", cond: { courseDone: true } }
+    ]
   }
 ];
