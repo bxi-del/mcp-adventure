@@ -1127,5 +1127,448 @@ await server.connect(new StdioServerTransport());` },
       { id: "agent-b-tool", emoji: "🔌", name: "手脚并用", desc: "完成「工具调用」", cond: { lesson: "agent-4" } },
       { id: "agent-b-grad", emoji: "🎓", name: "Agent 毕业", desc: "完成 Agent 全部关卡", cond: { courseDone: true } }
     ]
+  },
+
+  /* =======================================================================
+   * 课程五：LLM 大模型基础（零基础）
+   * ======================================================================= */
+  {
+    id: "llm",
+    emoji: "🧬",
+    title: "大模型基础",
+    subtitle: "搞懂 AI 是怎么「说话」的",
+    tagline: "零基础 · 底层原理 · 10 关",
+    gradient: "linear-gradient(135deg,#8b5cf6 0%,#a78bfa 55%,#f0abfc 100%)",
+    mascotName: "明兰",
+    lessons: [
+      {
+        id: "llm-0",
+        emoji: "🧬",
+        title: "什么是大语言模型（LLM）",
+        minutes: 3,
+        xp: 500,
+        intro: "你天天用的 AI，底层就是它。",
+        blocks: [
+          { type: "text", html: "你用的 ChatGPT、Claude、文心一言、豆包……底层都是同一个东西：<b>大语言模型（LLM，Large Language Model）</b>。名字听起来唬人，拆开就两件事：<b>「大」</b>（参数多）+ <b>「语言模型」</b>（专门学语言的）。" },
+          { type: "callout", tone: "analogy", title: "🧬 一个比喻", html: "LLM 就像一个<b>读过海量书籍的超级「接龙」高手</b>：你给它一段话，它能顺着往下接，而且接得特别像人话。" },
+          { type: "quiz", id: "llm-0-q1", question: "LLM 的全称是？", options: [
+            { text: "Large Language Model（大语言模型）", correct: true },
+            { text: "Little Logic Machine", correct: false },
+            { text: "Loud Loud Music", correct: false }
+          ], explain: "对！LLM = Large Language Model，大语言模型。" },
+          { type: "final", html: "认识 LLM 了。下一站：它到底是<b>怎么说话</b>的。" }
+        ]
+      },
+      {
+        id: "llm-1",
+        emoji: "🔮",
+        title: "它是怎么「说话」的",
+        minutes: 3,
+        xp: 500,
+        intro: "一个词一个词「接」出来。",
+        blocks: [
+          { type: "text", html: "AI 生成回答，其实不是「整段想好再说」，而是<b>一个字一个字往外蹦</b>：每次根据前面已有的文字，预测「下一个最可能是哪个词」。" },
+          { type: "callout", tone: "analogy", title: "🔮 接龙游戏", html: "就像玩接龙：「今天天气真____」，模型猜「好」的概率最高，就接「好」；然后再看「今天天气真好____」，继续接…… 一路接出整段话。" },
+          { type: "quiz", id: "llm-1-q1", question: "大模型生成文字，本质是在做什么？", options: [
+            { text: "一个词一个词地预测「下一个词」", correct: true },
+            { text: "从一本词典里随机翻", correct: false },
+            { text: "把背下来的文章原样抄出来", correct: false }
+          ], explain: "对！它就是「预测下一个词」，一步步接出整段话。" },
+          { type: "final", html: "会「接龙」了。下一站认识它处理文字的最小单位：<b>Token</b>。" }
+        ]
+      },
+      {
+        id: "llm-2",
+        emoji: "🔤",
+        title: "Token 是什么",
+        minutes: 4,
+        xp: 500,
+        intro: "模型眼里，文字是一堆「碎片」。",
+        blocks: [
+          { type: "text", html: "模型不直接认「字」，它把文字切成一小块一小块的<b>Token</b>，再处理。Token 是模型处理文本的<b>最小单位</b>。" },
+          { type: "callout", tone: "tip", title: "🔤 有多大？", html: "大概是这样：<br/>英文：约 <b>0.75 个词 = 1 token</b><br/>中文：约 <b>1~1.5 个字 = 1 token</b><br/><br/>比如「我爱人工智能」大约会切成 4~6 个 token。" },
+          { type: "quiz", id: "llm-2-q1", question: "Token 是什么？", options: [
+            { text: "模型处理文本的最小单位", correct: true },
+            { text: "一种加密货币", correct: false },
+            { text: "一个完整的句子", correct: false }
+          ], explain: "对！Token 是模型切分、处理文字的最小单位。" },
+          { type: "final", html: "懂了 Token。下一站：模型一次能「看」多少——<b>上下文窗口</b>。" }
+        ]
+      },
+      {
+        id: "llm-3",
+        emoji: "🪟",
+        title: "上下文窗口",
+        minutes: 4,
+        xp: 500,
+        intro: "它一次只能「记」这么多。",
+        blocks: [
+          { type: "text", html: "模型一次能「看到」的 token 数量是<b>有限的</b>，这个上限就叫<b>上下文窗口（Context Window）</b>。一旦对话太长、塞的东西太多，超出窗口，前面就会被「挤掉」、被忘掉。" },
+          { type: "callout", tone: "analogy", title: "🪟 一张桌子", html: "上下文窗口就像一张<b>桌子</b>，只能摆得下这么多东西。东西越多，你越可能把早先放的资料「推到桌子下面」——AI 也就「看不见」了。" },
+          { type: "quiz", id: "llm-3-q1", question: "和 AI 聊太久，它忘了最早说的事，最可能是因为？", options: [
+            { text: "超出了上下文窗口", correct: true },
+            { text: "它故意不理你", correct: false },
+            { text: "它关机了", correct: false }
+          ], explain: "对！超长对话会超出上下文窗口，早的内容就被挤掉了。" },
+          { type: "final", html: "知道它「记性」有限的原理了。下一站：一个能调「随机性」的旋钮——<b>温度</b>。" }
+        ]
+      },
+      {
+        id: "llm-4",
+        emoji: "🌡️",
+        title: "温度（Temperature）",
+        minutes: 4,
+        xp: 500,
+        intro: "一个控制「发散 vs 保守」的旋钮。",
+        blocks: [
+          { type: "text", html: "温度是模型的一个<b>参数旋钮</b>，控制它「选词」时有多大胆。<br/><b>温度低</b> → 稳、保守、可预测；<b>温度高</b> → 发散、有创意、也可能跑偏。" },
+          { type: "callout", tone: "analogy", title: "🌡️ 怎么选", html: "写代码、做数学、要严谨 → <b>调低温度</b>（如 0.1~0.3）<br/>写诗、起名、头脑风暴、要创意 → <b>调高温度</b>（如 0.8~1.0）" },
+          { type: "quiz", id: "llm-4-q1", question: "想让 AI 严谨地算一道数学题，温度应该？", options: [
+            { text: "调低（更稳定）", correct: true },
+            { text: "调到最高（越天马行空越好）", correct: false },
+            { text: "无所谓", correct: false }
+          ], explain: "对！严谨任务要低温度，答案更稳定可靠。" },
+          { type: "final", html: "会调温度了。下一站是「翻车现场」：<b>幻觉</b>。" }
+        ]
+      },
+      {
+        id: "llm-5",
+        emoji: "😵‍💫",
+        title: "幻觉（Hallucination）",
+        minutes: 4,
+        xp: 500,
+        intro: "为什么 AI 会一本正经地胡说。",
+        blocks: [
+          { type: "text", html: "有时候 AI 会<b>一本正经地编造</b>——不存在的书名、假的引用、胡编的数据。这种现象叫<b>幻觉（Hallucination）</b>。" },
+          { type: "callout", tone: "warn", title: "😵‍💫 为什么会幻觉？", html: "因为模型的工作是「<b>预测下一个词、让话听起来通顺</b>」，而不是「查证事实」。它为了把话说圆，就可能「脑补」出看似合理、实则错误的内容。" },
+          { type: "quiz", id: "llm-5-q1", question: "AI 说了一个「听起来很对、但根本不存在」的引用，这是？", options: [
+            { text: "幻觉（编造事实）", correct: true },
+            { text: "它真的查过资料", correct: false },
+            { text: "系统 bug", correct: false }
+          ], explain: "对！这就是幻觉——为了把话说圆而脑补。" },
+          { type: "quiz", id: "llm-5-q2", question: "下面哪种做法最能减少幻觉？", options: [
+            { text: "给它准确资料，让它「照着回答」", correct: true },
+            { text: "什么都不给，随便它编", correct: false },
+            { text: "把温度调到最高", correct: false }
+          ], explain: "对！给足准确资料（比如让它先查再答），能大幅减少胡编。" },
+          { type: "final", html: "会识别幻觉了。下一站：它是<b>怎么被训练出来</b>的。" }
+        ]
+      },
+      {
+        id: "llm-6",
+        emoji: "🏋️",
+        title: "它是怎么训练出来的",
+        minutes: 5,
+        xp: 500,
+        intro: "三步：学语言 → 学听话 → 学做人。",
+        blocks: [
+          { type: "text", html: "一个 LLM 的诞生，大致要经过<b>三个阶段</b>，一步一步「升级」。" },
+          { type: "callout", tone: "analogy", title: "🏋️ 训练三阶段", html: "<b>① 预训练</b>：喂海量文本，学会「语言本身」（会接话）<br/><b>② 指令微调（SFT）</b>：用问答范例，学会「听指令」（你问它答）<br/><b>③ 对齐（RLHF）</b>：用人类反馈，学会「说人话、别乱说」（安全、有用）" },
+          { type: "order", id: "llm-6-o1", prompt: "给训练的三个阶段排个先后顺序 👇", items: [
+            "预训练（海量文本学语言）",
+            "指令微调（学会听指令）",
+            "对齐 RLHF（符合人类偏好）"
+          ], explain: "对！先学语言，再学听指令，最后对齐人类偏好。" },
+          { type: "final", html: "知道它怎么「长大」了。下一站：<b>多模态</b>和<b>参数</b>。" }
+        ]
+      },
+      {
+        id: "llm-7",
+        emoji: "👀",
+        title: "多模态 & 参数",
+        minutes: 4,
+        xp: 500,
+        intro: "不只是文字，还能看、能听。",
+        blocks: [
+          { type: "text", html: "早期模型只会处理文字，现在很多模型是<b>多模态</b>的：文字、图片、声音、视频都能懂。<br/>还有个常听说的词<b>参数</b>——可以理解成模型的「脑容量」，数字越大一般越强（但不是唯一标准）。" },
+          { type: "quiz", id: "llm-7-q1", question: "「多模态」模型指的是？", options: [
+            { text: "能同时处理文字、图片、声音等", correct: true },
+            { text: "只能打字", correct: false },
+            { text: "有很多个开关", correct: false }
+          ], explain: "对！多模态=能理解文字、图片、声音等多种输入。" },
+          { type: "quiz", id: "llm-7-q2", question: "关于「参数」下列说法正确的是？", options: [
+            { text: "大致相当于模型规模，越多一般越强，但不是唯一标准", correct: true },
+            { text: "参数越多就一定越聪明", correct: false },
+            { text: "参数和模型毫无关系", correct: false }
+          ], explain: "对！参数是规模指标，但「强不强」还要看训练、数据等。" },
+          { type: "final", html: "进阶概念也懂了。下一站：<b>怎么选模型 + 常见误区</b>。" }
+        ]
+      },
+      {
+        id: "llm-8",
+        emoji: "🧭",
+        title: "怎么选模型 + 常见误区",
+        minutes: 4,
+        xp: 500,
+        intro: "别迷信「越大越好、越新越好」。",
+        blocks: [
+          { type: "callout", tone: "tip", title: "🧭 选模型看任务", html: "写文案/聊天 → 通用对话模型<br/>写代码 → 代码强的模型<br/>看图/画图 → 多模态模型<br/>处理长文档 → 上下文窗口大的模型" },
+          { type: "callout", tone: "warn", title: "⚠️ 三个误区", html: "① 不是「参数越大就越好用」<br/>② 不是「免费的就很差」<br/>③ 不是「越新就越适合你」——适合任务才是关键" },
+          { type: "quiz", id: "llm-8-q1", question: "选 AI 模型时，最重要的是？", options: [
+            { text: "看任务和场景匹不匹配", correct: true },
+            { text: "只看谁参数最大", correct: false },
+            { text: "只看谁最贵", correct: false }
+          ], explain: "对！适合自己的任务，才是最好的模型。" },
+          { type: "final", html: "会挑模型了。最后一站：<b>毕业闯关</b> 🎓" }
+        ]
+      },
+      {
+        id: "llm-9",
+        emoji: "🎓",
+        title: "毕业闯关",
+        minutes: 4,
+        xp: 500,
+        intro: "四道题，通关领毕业证！",
+        blocks: [
+          { type: "text", html: "毕业闯关来啦，<b>4 道题</b>，都是这一路学过的～" },
+          { type: "quiz", id: "llm-9-q1", question: "① LLM 生成文字的本质是？", options: [
+            { text: "预测下一个词，一步步接出来", correct: true },
+            { text: "照抄训练资料", correct: false },
+            { text: "随机乱写", correct: false }
+          ], explain: "对！本质是「预测下一个词」。" },
+          { type: "quiz", id: "llm-9-q2", question: "② 对话太长，AI 忘了前面，是因为？", options: [
+            { text: "超出上下文窗口", correct: true },
+            { text: "AI 记性差", correct: false },
+            { text: "网络不好", correct: false }
+          ], explain: "对！超长内容会超出上下文窗口。" },
+          { type: "quiz", id: "llm-9-q3", question: "③ 想减少 AI 胡编（幻觉），最好？", options: [
+            { text: "给它准确资料，让它照着回答", correct: true },
+            { text: "把温度调到最高", correct: false },
+            { text: "别管它", correct: false }
+          ], explain: "对！给足准确资料能大幅减少幻觉。" },
+          { type: "quiz", id: "llm-9-q4", question: "④ 训练 LLM 的最后一步（对齐）主要是？", options: [
+            { text: "用人类反馈让它更安全、更符合人", correct: true },
+            { text: "让它学更多错别字", correct: false },
+            { text: "把它关机", correct: false }
+          ], explain: "对！RLHF 对齐让模型更安全、更有用。" },
+          { type: "final", html: "大模型基础闯关完成！你现在真的「懂 AI」了 🎉<br/>点击下方按钮领取毕业证书吧～" }
+        ]
+      }
+    ],
+    badges: [
+      { id: "llm-b-start", emoji: "🧬", name: "初识 LLM", desc: "完成「什么是 LLM」", cond: { lesson: "llm-0" } },
+      { id: "llm-b-token", emoji: "🔤", name: "Token 达人", desc: "完成「Token 是什么」", cond: { lesson: "llm-2" } },
+      { id: "llm-b-hallu", emoji: "😵‍💫", name: "幻觉克星", desc: "完成「幻觉」", cond: { lesson: "llm-5" } },
+      { id: "llm-b-grad", emoji: "🎓", name: "LLM 毕业", desc: "完成大模型基础全部关卡", cond: { courseDone: true } }
+    ]
+  },
+
+  /* =======================================================================
+   * 课程六：AI 绘画入门（文生图）
+   * ======================================================================= */
+  {
+    id: "draw",
+    emoji: "🎨",
+    title: "AI 绘画入门",
+    subtitle: "一句话，让 AI 给你画图",
+    tagline: "零基础 · 好玩 · 10 关",
+    gradient: "linear-gradient(135deg,#f472b6 0%,#fb923c 55%,#facc15 100%)",
+    mascotName: "明兰",
+    lessons: [
+      {
+        id: "draw-0",
+        emoji: "🎨",
+        title: "什么是文生图",
+        minutes: 3,
+        xp: 500,
+        intro: "输入一句话，AI 生成一张图。",
+        blocks: [
+          { type: "text", html: "上一门课我们学了「大模型」，它还能<b>画画</b>：你输入一句话（叫 <b>Prompt</b>），AI 就生成一张图，这叫<b>文生图（Text-to-Image）</b>。" },
+          { type: "callout", tone: "fun", title: "🎨 一句话变一张图", html: "比如输入「一只戴着宇航员头盔的橘猫，赛博朋克风格，霓虹灯光」，AI 就能给你画出来。超好玩！" },
+          { type: "quiz", id: "draw-0-q1", question: "「文生图」是什么意思？", options: [
+            { text: "输入文字，AI 生成图片", correct: true },
+            { text: "输入图片，AI 生成文字", correct: false },
+            { text: "只能画文字", correct: false }
+          ], explain: "对！文生图 = 用文字（Prompt）让 AI 画图。" },
+          { type: "final", html: "了解文生图了。下一站看看<b>有哪些好用的工具</b>。" }
+        ]
+      },
+      {
+        id: "draw-1",
+        emoji: "🧰",
+        title: "主流工具一览",
+        minutes: 4,
+        xp: 500,
+        intro: "国外有 Midjourney，国内有即梦、通义万相。",
+        blocks: [
+          { type: "text", html: "文生图工具很多，主要分<b>国外</b>和<b>国内</b>两类。" },
+          { type: "callout", tone: "tip", title: "🧰 常用工具", html: "<b>国外</b>：Midjourney（画质高、要科学上网）、Stable Diffusion（开源、能本地跑）、DALL·E<br/><b>国内</b>：即梦、通义万相、文心一格、豆包……（免费好用、直接中文）" },
+          { type: "quiz", id: "draw-1-q1", question: "人在国内、想免费直接中文画图，最适合先试哪个？", options: [
+            { text: "即梦 / 通义万相（国内工具）", correct: true },
+            { text: "只能选 Midjourney", correct: false },
+            { text: "没有工具能用", correct: false }
+          ], explain: "对！国内工具即梦、通义万相免费、中文、无需翻墙，最适合入门。" },
+          { type: "final", html: "工具心里有数了。下一站：<b>画图提示词的公式</b>。" }
+        ]
+      },
+      {
+        id: "draw-2",
+        emoji: "📐",
+        title: "画图提示词公式",
+        minutes: 5,
+        xp: 500,
+        intro: "主体 + 场景 + 风格 + 细节。",
+        blocks: [
+          { type: "text", html: "画图 Prompt 也有公式，四个零件拼起来，图就好看、可控：" },
+          { type: "callout", tone: "idea", title: "📐 画图公式", html: "<b>[主体] + [场景] + [风格] + [细节]</b><br/><br/>例：「一只橘猫（主体）+ 在月球上（场景）+ 扁平插画风（风格）+ 柔光、大月亮（细节）」" },
+          { type: "quiz", id: "draw-2-q1", question: "下面哪个画图 Prompt 更完整、更可控？", options: [
+            { text: "「一只穿和服的柴犬，樱花树下，浮世绘风格，柔和光线」", correct: true },
+            { text: "「画只狗」", correct: false },
+            { text: "「图」", correct: false }
+          ], explain: "对！第一个有主体、场景、风格、细节，信息最全。" },
+          { type: "final", html: "会套公式了。下一站：<b>风格词</b>——一键换画风。" }
+        ]
+      },
+      {
+        id: "draw-3",
+        emoji: "🖌️",
+        title: "风格词大法",
+        minutes: 4,
+        xp: 500,
+        intro: "加一个词，画风立刻变。",
+        blocks: [
+          { type: "text", html: "同样的主体，换个<b>风格词</b>，出来的图完全不同。风格词是最省力的「换画风」技巧。" },
+          { type: "match", id: "draw-3-m1", prompt: "把风格词和它的感觉连起来 👇", pairs: [
+            { left: "赛博朋克", right: "霓虹灯、未来都市" },
+            { left: "水墨画", right: "留白、中国风" },
+            { left: "吉卜力/宫崎骏风", right: "清新治愈动画" },
+            { left: "扁平插画", right: "简洁现代、色块" }
+          ], explain: "赛博朋克=霓虹未来，水墨=中国风，吉卜力=治愈动画，扁平=简洁现代。" },
+          { type: "quiz", id: "draw-3-q1", question: "想要「清新治愈的动画感」，最该加哪个风格词？", options: [
+            { text: "吉卜力/宫崎骏风", correct: true },
+            { text: "赛博朋克", correct: false },
+            { text: "哥特暗黑", correct: false }
+          ], explain: "对！吉卜力风格就是清新治愈的动画感。" },
+          { type: "final", html: "会换画风了。下一站：<b>负向提示词</b>——告诉它别画什么。" }
+        ]
+      },
+      {
+        id: "draw-4",
+        emoji: "🚫",
+        title: "负向提示词",
+        minutes: 4,
+        xp: 500,
+        intro: "告诉它「别画什么」，图更干净。",
+        blocks: [
+          { type: "text", html: "除了告诉 AI 要什么，还可以告诉它<b>不要什么</b>，这叫<b>负向提示词</b>。能让图更干净、少出「怪东西」。" },
+          { type: "callout", tone: "warn", title: "🚫 常见负向词", html: "模糊、低质量、多余的手指、畸形的脸、多余的手臂、水印、文字乱码……（尤其画人物时，加上「坏手」相关的负向词很管用）" },
+          { type: "quiz", id: "draw-4-q1", question: "画人物时，手常常画成 6 根手指，怎么办？", options: [
+            { text: "加负向提示词（如「多余手指、畸形手指」）", correct: true },
+            { text: "接受它", correct: false },
+            { text: "把人物删掉", correct: false }
+          ], explain: "对！加「多余手指、畸形手指」等负向词，能明显改善。" },
+          { type: "final", html: "会「排雷」了。下一站：<b>不满意怎么改</b>。" }
+        ]
+      },
+      {
+        id: "draw-5",
+        emoji: "🔁",
+        title: "迭代修改",
+        minutes: 4,
+        xp: 500,
+        intro: "一次不行，就改、就重试。",
+        blocks: [
+          { type: "text", html: "画图几乎不可能一次完美，核心心法是<b>迭代</b>：不满意就改，直到喜欢。" },
+          { type: "callout", tone: "tip", title: "🔁 四种改法", html: "① <b>改词</b>：换主体、换风格、加细节<br/>② <b>加细节词</b>：光照、构图、景别（特写/远景）<br/>③ <b>换风格</b>：直接换个画风再试<br/>④ <b>图生图</b>：拿一张接近的图，让 AI 照着改" },
+          { type: "quiz", id: "draw-5-q1", question: "画出来的图「感觉不够精致」，最该先试什么？", options: [
+            { text: "在提示词里加细节词（光照、构图、质量词）", correct: true },
+            { text: "直接放弃", correct: false },
+            { text: "关掉电脑", correct: false }
+          ], explain: "对！加光照、构图、质量词等细节，往往能明显提升。" },
+          { type: "final", html: "会迭代了。下一站：<b>能用来干嘛</b>。" }
+        ]
+      },
+      {
+        id: "draw-6",
+        emoji: "🌟",
+        title: "实用场景",
+        minutes: 3,
+        xp: 500,
+        intro: "头像、壁纸、海报、表情包……",
+        blocks: [
+          { type: "text", html: "文生图不是玩具，日常特别好用。" },
+          { type: "callout", tone: "fun", title: "🌟 常见用途", html: "🖼️ <b>头像</b>：给自己/朋友做个独一无二的头像<br/>🌄 <b>壁纸</b>：手机电脑壁纸随便换<br/>📢 <b>海报/配图</b>：公众号、PPT、朋友圈配图<br/>😄 <b>表情包</b>：画点好玩的表情" },
+          { type: "quiz", id: "draw-6-q1", question: "下面哪个是文生图的实用场景？", options: [
+            { text: "做 PPT 配图 / 朋友圈海报", correct: true },
+            { text: "修水管", correct: false },
+            { text: "充话费", correct: false }
+          ], explain: "对！做配图、海报、头像、壁纸都是常见用途。" },
+          { type: "final", html: "知道能干嘛了。下一站：<b>版权小提醒</b>。" }
+        ]
+      },
+      {
+        id: "draw-7",
+        emoji: "⚖️",
+        title: "版权小提醒",
+        minutes: 3,
+        xp: 500,
+        intro: "AI 生成的图，商用要看清规则。",
+        blocks: [
+          { type: "text", html: "AI 生成的图也牵扯<b>版权</b>，尤其是想<b>商用</b>（拿去赚钱）时，一定要看清平台规则。" },
+          { type: "callout", tone: "warn", title: "⚖️ 三条提醒", html: "① <b>自用</b>（头像/壁纸）一般没问题<br/>② <b>商用</b>：查清该工具的授权条款，别默认「随便用」<br/>③ 别直接<b>模仿在世艺术家的画风</b>去商用，可能有争议" },
+          { type: "quiz", id: "draw-7-q1", question: "想把 AI 生成的图拿去做商业海报，最稳妥的做法是？", options: [
+            { text: "先查清所用工具的商用授权条款", correct: true },
+            { text: "什么都不管直接用", correct: false },
+            { text: "假装不是 AI 画的", correct: false }
+          ], explain: "对！商用前先查授权条款，别默认能随便用。" },
+          { type: "final", html: "版权有数了。下一站：<b>常见坑</b>。" }
+        ]
+      },
+      {
+        id: "draw-8",
+        emoji: "⚠️",
+        title: "常见坑",
+        minutes: 3,
+        xp: 500,
+        intro: "三个最容易踩的坑。",
+        blocks: [
+          { type: "callout", tone: "warn", title: "⚠️ 三个常见坑", html: "① <b>提示词太模糊</b>：只说「画个人」，AI 只能瞎画<br/>② <b>风格词冲突</b>：又要「水墨」又要「赛博朋克」，容易四不像<br/>③ <b>手指/文字崩</b>：人物手指、图里的文字经常出错，要加负向词或后期修" },
+          { type: "quiz", id: "draw-8-q1", question: "下面哪个是「风格冲突」的提示词？", options: [
+            { text: "「水墨画风格 + 赛博朋克霓虹」硬凑一起", correct: true },
+            { text: "「一只白猫，扁平插画风」", correct: false },
+            { text: "「海边日落，写实摄影」", correct: false }
+          ], explain: "对！水墨和赛博朋克风格打架，容易四不像。" },
+          { type: "final", html: "坑都躲开了。最后一站：<b>毕业闯关</b> 🎓" }
+        ]
+      },
+      {
+        id: "draw-9",
+        emoji: "🎓",
+        title: "毕业闯关",
+        minutes: 4,
+        xp: 500,
+        intro: "四道题，通关领毕业证！",
+        blocks: [
+          { type: "text", html: "毕业闯关来啦，<b>4 道题</b>，都是这一路学过的～" },
+          { type: "quiz", id: "draw-9-q1", question: "① 画图提示词的公式是？", options: [
+            { text: "主体 + 场景 + 风格 + 细节", correct: true },
+            { text: "随便写一个词", correct: false },
+            { text: "只写颜色", correct: false }
+          ], explain: "对！主体、场景、风格、细节，四个零件拼起来。" },
+          { type: "quiz", id: "draw-9-q2", question: "② 想让图「换一种画风」，最省力的做法是？", options: [
+            { text: "换一个风格词", correct: true },
+            { text: "重新下载软件", correct: false },
+            { text: "换台电脑", correct: false }
+          ], explain: "对！换风格词就能一键换画风。" },
+          { type: "quiz", id: "draw-9-q3", question: "③ 画人物手经常崩，怎么办？", options: [
+            { text: "加「多余手指、畸形手指」等负向词", correct: true },
+            { text: "把手裁掉", correct: false },
+            { text: "不画人", correct: false }
+          ], explain: "对！用负向提示词能明显改善手的问题。" },
+          { type: "quiz", id: "draw-9-q4", question: "④ AI 图想商用，最该先做的是？", options: [
+            { text: "查清工具的商用授权条款", correct: true },
+            { text: "直接用", correct: false },
+            { text: "不用管", correct: false }
+          ], explain: "对！商用前先查授权，避免版权麻烦。" },
+          { type: "final", html: "AI 绘画闯关完成！你已经会「一句话变一张图」啦 🎉<br/>点击下方按钮领取毕业证书吧～" }
+        ]
+      }
+    ],
+    badges: [
+      { id: "draw-b-start", emoji: "🎨", name: "初识绘画", desc: "完成「什么是文生图」", cond: { lesson: "draw-0" } },
+      { id: "draw-b-formula", emoji: "📐", name: "公式大师", desc: "完成「画图提示词公式」", cond: { lesson: "draw-2" } },
+      { id: "draw-b-style", emoji: "🖌️", name: "画风百变", desc: "完成「风格词大法」", cond: { lesson: "draw-3" } },
+      { id: "draw-b-grad", emoji: "🎓", name: "绘画毕业", desc: "完成 AI 绘画全部关卡", cond: { courseDone: true } }
+    ]
   }
 ];
